@@ -4,11 +4,11 @@ import { useRouter } from "next/navigation";
 import ProductForm from "@/app/components/admin/ProductForm";
 import { Product } from "@/types/product";
 import toast from "react-hot-toast";
-import { use } from "react";
+// Remove: import { use } from "react";
 
 export default function EditProduct({ params }: { params: { id: string } }) {
-  // Unwrap the params
-  const id = use(Promise.resolve(params.id));
+  // Directly use the params value
+  const { id } = params;
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -16,9 +16,7 @@ export default function EditProduct({ params }: { params: { id: string } }) {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`/api/products/${id}`, {
-          method: "GET", // Explicitly specify the method
-        });
+        const response = await fetch(`/api/products/${id}`, { method: "GET" });
         if (!response.ok) throw new Error("Failed to fetch product");
         const data = await response.json();
         setProduct(data);
@@ -27,26 +25,22 @@ export default function EditProduct({ params }: { params: { id: string } }) {
         console.error(error);
       }
     };
-
     fetchProduct();
   }, [id]);
 
   const handleSubmit = async (productData: Partial<Product>) => {
     setIsLoading(true);
     try {
-      // If there's a new image and an old image, delete the old one
+      // Optionally, delete the old image if a new one is uploaded
       if (productData.image_url && product?.image_url && productData.image_url !== product.image_url) {
         await deleteProductImage(product.image_url);
       }
-
-      const response = await fetch(`/api/products/${params.id}`, {
+      const response = await fetch(`/api/products/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(productData),
       });
-
       if (!response.ok) throw new Error("Failed to update product");
-
       toast.success("Product updated successfully");
       router.push("/admin/products");
     } catch (error) {

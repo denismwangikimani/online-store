@@ -7,45 +7,31 @@ export async function GET() {
   const cookieStore = cookies();
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
-  let query = supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (category) {
-    query = query.eq("category", category);
+  try {
+    const { data: categories, error } = await supabase
+      .from("categories")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    return NextResponse.json(categories);
+  } catch (error) {
+    return NextResponse.json({ error: "Error fetching categories" }, { status: 500 });
   }
-
-  const { data: products, error } = await query;
-  if (error) {
-    return NextResponse.json(
-      { error: "Error fetching products" },
-      { status: 500 }
-    );
-  }
-
-  return NextResponse.json(products);
 }
 
 export async function POST(request: Request) {
   const cookieStore = cookies();
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
-
   try {
-    const product = await request.json();
+    const category = await request.json();
     const { data, error } = await supabase
-      .from("products")
-      .insert([product])
+      .from("categories")
+      .insert([category])
       .select()
       .single();
-
     if (error) throw error;
-
     return NextResponse.json(data);
   } catch (error) {
-    return NextResponse.json(
-      { error: "Error creating product" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Error creating category" }, { status: 500 });
   }
 }

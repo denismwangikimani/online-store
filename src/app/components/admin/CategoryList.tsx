@@ -33,7 +33,7 @@ export default function CategoryList({
               <td className="px-6 py-4 whitespace-nowrap">{category.name}</td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button
-                  onClick={() => router.push(`/categories/${category.id}`)}
+                  onClick={() => router.push(`/admin/categories/${category.id}/products`)}
                   className="text-green-600 hover:text-green-900 mr-4"
                 >
                   View Products

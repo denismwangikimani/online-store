@@ -1,34 +1,35 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-export async function GET() {
-  const cookieStore = cookies();
+export async function GET(request: Request) {
+  const cookieStore = await cookies();
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
-  let query = supabase
-    .from("products")
-    .select("*")
-    .order("created_at", { ascending: false });
+  try {
+    const url = new URL(request.url);
+    const category = url.searchParams.get("category");
 
-  if (category) {
-    query = query.eq("category", category);
-  }
+    let query = supabase.from("products").select("*");
+    if (category) {
+      query = query.eq("category", category);
+    }
 
-  const { data: products, error } = await query;
-  if (error) {
+    const { data, error } = await query;
+
+    if (error) throw error;
+
+    return NextResponse.json(data);
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Error fetching products" },
+      { error: error.message || "Error fetching products" },
       { status: 500 }
     );
   }
-
-  return NextResponse.json(products);
 }
 
 export async function POST(request: Request) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
   try {
@@ -42,9 +43,9 @@ export async function POST(request: Request) {
     if (error) throw error;
 
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (error: unknown) {
     return NextResponse.json(
-      { error: "Error creating product" },
+      { error: error.message || "Error creating product" },
       { status: 500 }
     );
   }

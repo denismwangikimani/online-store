@@ -11,42 +11,40 @@ export default function AdminProducts() {
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
+  // Fetch products
   useEffect(() => {
+    async function fetchProducts() {
+      setIsLoading(true);
+      try {
+        const response = await fetch("/api/products");
+        if (!response.ok) throw new Error("Failed to fetch products");
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        toast.error("Error fetching products");
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
     fetchProducts();
   }, []);
 
-  const fetchProducts = async () => {
-    try {
-      const response = await fetch("/api/products");
-      if (!response.ok) throw new Error("Failed to fetch products");
-      const data = await response.json();
-      setProducts(data);
-    } catch (error) {
-      toast.error("Error fetching products");
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleDelete = async (id: number, imageUrl: string) => {
     if (!confirm("Are you sure you want to delete this product?")) return;
-
     setIsLoading(true);
     try {
-      // Delete the image from storage first
+      // Use the imageUrl parameter to delete the product image if available
       if (imageUrl) {
         await deleteProductImage(imageUrl);
       }
-
-      // Then delete the product from the database
-      const response = await fetch(`/api/products/${id}`, {
-        method: "DELETE",
-      });
-
+      const response = await fetch(`/api/products/${id}`, { method: "DELETE" });
       if (!response.ok) throw new Error("Failed to delete product");
       toast.success("Product deleted successfully");
-      fetchProducts();
+      // Re-fetch products after deletion
+      const res = await fetch("/api/products");
+      const updatedProducts = await res.json();
+      setProducts(updatedProducts);
     } catch (error) {
       toast.error("Error deleting product");
       console.error(error);

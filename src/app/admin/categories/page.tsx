@@ -30,12 +30,9 @@ export default function AdminCategories() {
 
   const handleDelete = async (id: number) => {
     if (!confirm("Are you sure you want to delete this category?")) return;
-
     setIsLoading(true);
     try {
-      const response = await fetch(`/api/categories/${id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(`/api/categories/${id}`, { method: "DELETE" });
       if (!response.ok) throw new Error("Failed to delete category");
       toast.success("Category deleted successfully");
       fetchCategories();
@@ -63,9 +60,7 @@ export default function AdminCategories() {
       ) : (
         <CategoryList
           categories={categories}
-          onEdit={(category) =>
-            router.push(`/admin/categories/edit/${category.id}`)
-          }
+          onEdit={(category) => router.push(`/admin/categories/edit/${category.id}`)}
           onDelete={handleDelete}
         />
       )}

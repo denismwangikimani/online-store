@@ -6,14 +6,18 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const cookieStore = await cookies();
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+
   try {
     const { data, error } = await supabase
       .from("categories")
       .select("*")
       .eq("id", params.id)
       .single();
+
     if (error) throw error;
+
     return NextResponse.json(data);
   } catch (error: unknown) {
     return NextResponse.json(
@@ -27,7 +31,9 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const cookieStore = await cookies();
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+
   try {
     const category = await request.json();
     const { data, error } = await supabase
@@ -36,7 +42,9 @@ export async function PUT(
       .eq("id", params.id)
       .select()
       .single();
+
     if (error) throw error;
+
     return NextResponse.json(data);
   } catch (error: unknown) {
     return NextResponse.json(
@@ -50,13 +58,17 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const cookieStore = await cookies();
+  const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+
   try {
     const { error } = await supabase
       .from("categories")
       .delete()
       .eq("id", params.id);
+
     if (error) throw error;
+
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
     return NextResponse.json(

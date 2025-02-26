@@ -14,12 +14,29 @@ export default function DiscountList({
   onEdit,
   onDelete,
 }: DiscountListProps) {
-  const getProductNames = (productIds: number[]) => {
-    if (!productIds) return "";
-    return productIds
-      .map((id) => products.find((product) => product.id === id)?.name)
+  // Log for debugging
+  console.log("Discounts data:", discounts);
+  console.log("Products data:", products);
+
+  const getProductNames = (productIds: number[] | null) => {
+    // Add null check and better logging
+    if (!productIds || productIds.length === 0) {
+      console.log("No product IDs found for discount");
+      return "No products";
+    }
+
+    console.log("Product IDs:", productIds);
+
+    const names = productIds
+      .map((id) => {
+        const product = products.find((p) => p.id === id);
+        if (!product) console.log(`Product with ID ${id} not found`);
+        return product?.name;
+      })
       .filter(Boolean)
       .join(", ");
+
+    return names || "No products";
   };
 
   return (

@@ -5,6 +5,7 @@ import { Product } from "@/types/product";
 import ProductList from "@/app/components/admin/ProductList";
 import toast from "react-hot-toast";
 import { deleteProductImage } from "@/services/storage";
+import { Product } from "@/types/product";
 
 export default function CategoryProducts() {
   const { id } = useParams(); // the category id
@@ -41,7 +42,7 @@ export default function CategoryProducts() {
         const response = await fetch(url);
         if (!response.ok) throw new Error("Failed to fetch products");
         const data = await response.json();
-        setProducts(data);
+        setProducts(data); // Products now have discount_percentage and discounted_price where applicable
       } catch (error) {
         toast.error("Error fetching products");
         console.error(error);

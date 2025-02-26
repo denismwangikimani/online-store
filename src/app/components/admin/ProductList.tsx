@@ -86,11 +86,7 @@ export default function ProductList({
                       ${product.price.toFixed(2)}
                     </span>
                     <span className="text-green-500 ml-2">
-                      $
-                      {(
-                        product.price *
-                        (1 - product.discount_percentage / 100)
-                      ).toFixed(2)}
+                      ${product.discounted_price?.toFixed(2)}
                     </span>
                   </>
                 ) : (

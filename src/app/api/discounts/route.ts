@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -8,15 +7,41 @@ export async function GET() {
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
   try {
+    // First get all discounts
     const { data: discounts, error } = await supabase
       .from("discounts")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
-    return NextResponse.json(discounts);
+    // Then get discount-product relationships for all discounts
+    const { data: discountProducts, error: dpError } = await supabase
+      .from("discount_products")
+      .select("*");
+
+    if (dpError) {
+      throw dpError;
+    }
+
+    // Add product_ids to each discount
+    const discountsWithProducts = discounts.map((discount) => {
+      const products = discountProducts
+        .filter((dp) => dp.discount_id === discount.id)
+        .map((dp) => dp.product_id);
+
+      return {
+        ...discount,
+        product_ids: products,
+      };
+    });
+
+    console.log("Discounts with products:", discountsWithProducts);
+    return NextResponse.json(discountsWithProducts);
   } catch (error) {
+    console.error("Error fetching discounts:", error);
     return NextResponse.json(
       { error: "Error fetching discounts" },
       { status: 500 }
@@ -57,9 +82,12 @@ export async function POST(request: Request) {
     if (discountProductsError) throw discountProductsError;
 
     return NextResponse.json(data);
-  } catch (error) {
+  } catch (error: unknown) {
+    // Add type annotation here
+    console.error("Error creating discount:", error); // Log the full error for debugging
+
     return NextResponse.json(
-      { error: "Error creating discount" },
+      { error: error.message || "Error creating discount" }, // Include the actual error message
       { status: 500 }
     );
   }

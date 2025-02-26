@@ -10,16 +10,65 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const category = url.searchParams.get("category");
 
+    // Get current date in ISO format
+    const currentDate = new Date().toISOString().split("T")[0];
+
+    // First get all products
     let query = supabase.from("products").select("*");
     if (category) {
       query = query.eq("category", category);
     }
 
-    const { data, error } = await query;
+    const { data: products, error } = await query;
 
     if (error) throw error;
 
-    return NextResponse.json(data);
+    // Get active discounts
+    const { data: activeDiscounts, error: discountError } = await supabase
+      .from("discounts")
+      .select("*")
+      .lte("start_date", currentDate)
+      .gte("end_date", currentDate);
+
+    if (discountError) throw discountError;
+
+    // Get discount-product relationships
+    const { data: discountProducts, error: dpError } = await supabase
+      .from("discount_products")
+      .select("*");
+
+    if (dpError) throw dpError;
+
+    // Add discount information to each product
+    const productsWithDiscounts = products.map((product) => {
+      // Find if this product has any active discount
+      const productDiscountRelation = discountProducts.find(
+        (dp) => dp.product_id === product.id
+      );
+
+      if (productDiscountRelation) {
+        // Find the discount details
+        const discount = activeDiscounts.find(
+          (d) => d.id === productDiscountRelation.discount_id
+        );
+
+        if (discount) {
+          // Add discount information to the product
+          return {
+            ...product,
+            discount_percentage: discount.percentage,
+            discounted_price: +(
+              product.price *
+              (1 - discount.percentage / 100)
+            ).toFixed(2),
+          };
+        }
+      }
+
+      return product;
+    });
+
+    return NextResponse.json(productsWithDiscounts);
   } catch (error: unknown) {
     return NextResponse.json(
       { error: error.message || "Error fetching products" },

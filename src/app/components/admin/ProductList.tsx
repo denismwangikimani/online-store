@@ -17,19 +17,34 @@ export default function ProductList({
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Product
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Category
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Price
             </th>
-            <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Stock
             </th>
-            <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <th
+              scope="col"
+              className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+            >
               Actions
             </th>
           </tr>
@@ -41,13 +56,18 @@ export default function ProductList({
                 <div className="flex items-center">
                   <div className="h-16 w-16 flex-shrink-0 relative">
                     <Image
-                      src={product.image_url || '/placeholder-product.png'}
+                      src={product.image_url || "/placeholder-product.png"}
                       alt={product.name}
                       fill
                       priority
-                      unoptimized 
+                      unoptimized
                       className="object-cover rounded-md"
                     />
+                    {product.discount_percentage && (
+                      <span className="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold rounded-full px-2 py-1">
+                        {product.discount_percentage}% OFF
+                      </span>
+                    )}
                   </div>
                   <div className="ml-4">
                     <div className="text-sm font-medium text-gray-900">
@@ -60,7 +80,22 @@ export default function ProductList({
                 {product.category}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                ${product.price.toFixed(2)}
+                {product.discount_percentage ? (
+                  <>
+                    <span className="line-through">
+                      ${product.price.toFixed(2)}
+                    </span>
+                    <span className="text-green-500 ml-2">
+                      $
+                      {(
+                        product.price *
+                        (1 - product.discount_percentage / 100)
+                      ).toFixed(2)}
+                    </span>
+                  </>
+                ) : (
+                  `$${product.price.toFixed(2)}`
+                )}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {product.stock}

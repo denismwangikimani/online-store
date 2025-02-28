@@ -1,0 +1,148 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import { Product } from "@/types/product";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+
+export default function ProductDetail() {
+  const { id } = useParams();
+  const [product, setProduct] = useState<Product | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchProduct() {
+      try {
+        setIsLoading(true);
+        const response = await fetch(`/api/products/${id}`);
+        if (!response.ok) throw new Error("Failed to fetch product");
+        const data = await response.json();
+        setProduct(data);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (id) fetchProduct();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col md:flex-row gap-8">
+          <div className="w-full md:w-1/2 bg-gray-100 aspect-square animate-pulse rounded-lg"></div>
+          <div className="w-full md:w-1/2 space-y-4">
+            <div className="h-8 bg-gray-100 animate-pulse rounded"></div>
+            <div className="h-6 bg-gray-100 animate-pulse rounded w-1/4"></div>
+            <div className="h-32 bg-gray-100 animate-pulse rounded"></div>
+            <div className="h-12 bg-gray-100 animate-pulse rounded w-1/2"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center">
+        <h1 className="text-2xl font-bold">Product not found</h1>
+        <Link
+          href="/"
+          className="text-indigo-600 hover:text-indigo-800 mt-4 inline-block"
+        >
+          Return to home
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+      <div className="mb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center text-sm text-gray-600 hover:text-indigo-600"
+        >
+          <ArrowLeftIcon className="h-4 w-4 mr-1" />
+          Back to Home
+        </Link>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-8">
+        {/* Product Image */}
+        <div className="w-full md:w-1/2">
+          <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
+            {product.image_url ? (
+              <Image
+                src={product.image_url}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 100vw, 600px"
+                className="object-cover object-center"
+                priority
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
+                <span className="text-gray-400">No image</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Product Details */}
+        <div className="w-full md:w-1/2">
+          <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+
+          {/* Price */}
+          <div className="mt-4">
+            {product.discount_percentage ? (
+              <div className="flex items-center">
+                <p className="text-2xl font-bold text-red-600 mr-3">
+                  ${product.discounted_price.toFixed(2)}
+                </p>
+                <p className="text-lg text-gray-500 line-through">
+                  ${product.price.toFixed(2)}
+                </p>
+                <span className="ml-3 bg-red-100 text-red-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                  {product.discount_percentage}% OFF
+                </span>
+              </div>
+            ) : (
+              <p className="text-2xl font-bold text-gray-900">
+                ${product.price.toFixed(2)}
+              </p>
+            )}
+          </div>
+
+          {/* Category */}
+          <p className="text-sm text-gray-500 mt-2">
+            Category: {product.category}
+          </p>
+
+          {/* Description */}
+          <div className="mt-6">
+            <h2 className="text-lg font-medium text-gray-900">Description</h2>
+            <div className="mt-2 prose prose-sm text-gray-600">
+              {product.description}
+            </div>
+          </div>
+
+          {/* Add to Bag Button */}
+          <button
+            className="mt-8 w-full bg-indigo-600 text-white py-3 px-4 rounded-md font-medium hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            disabled
+          >
+            Add to Bag
+          </button>
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            (Shopping cart functionality coming soon)
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -7,6 +7,6 @@ export interface Product {
   image_url: string;
   stock: number;
   created_at?: string;
-  discount_percentage?: number;  
-  discounted_price?: number;     
+  discount_percentage?: number;
+  discounted_price?: number;
 }

@@ -1,6 +1,7 @@
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { deleteCategoryImage } from "@/services/storage";
 
 export async function GET(
   request: Request,
@@ -62,12 +63,27 @@ export async function DELETE(
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
   try {
+    // First, get the category to retrieve the image URL
+    const { data: category, error: fetchError } = await supabase
+      .from("categories")
+      .select("image_url")
+      .eq("id", params.id)
+      .single();
+
+    if (fetchError) throw fetchError;
+
+    // Delete the category from the database
     const { error } = await supabase
       .from("categories")
       .delete()
       .eq("id", params.id);
 
     if (error) throw error;
+
+    // If there was an image, delete it from storage
+    if (category?.image_url) {
+      await deleteCategoryImage(category.image_url);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {

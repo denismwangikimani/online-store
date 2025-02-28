@@ -57,7 +57,9 @@ export async function uploadBannerImage(file: File) {
 
   try {
     const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const fileName = `${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2)}.${fileExt}`;
     const filePath = `banners/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
@@ -103,7 +105,11 @@ export async function uploadCategoryImage(file: File) {
   try {
     // Generate a unique filename
     const fileExt = file.name.split(".").pop();
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+    const fileName = `${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2)}.${fileExt}`;
+
+    // Note: Make sure this path matches how your bucket is structured
     const filePath = `categories/${fileName}`;
 
     // Upload the file to the "category-images" bucket

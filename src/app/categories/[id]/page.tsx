@@ -19,17 +19,15 @@ export default function CategoryPage() {
     async function fetchData() {
       try {
         setIsLoading(true);
-
+        
         // Fetch category
         const categoryRes = await fetch(`/api/categories/${id}`);
         if (!categoryRes.ok) throw new Error("Failed to fetch category");
         const categoryData = await categoryRes.json();
         setCategory(categoryData);
-
+        
         // Fetch products for this category
-        const productsRes = await fetch(
-          `/api/products?category=${encodeURIComponent(categoryData.name)}`
-        );
+        const productsRes = await fetch(`/api/products?category=${encodeURIComponent(categoryData.name)}`);
         if (!productsRes.ok) throw new Error("Failed to fetch products");
         const productsData = await productsRes.json();
         setProducts(productsData);
@@ -39,16 +37,12 @@ export default function CategoryPage() {
         setIsLoading(false);
       }
     }
-
+    
     if (id) fetchData();
   }, [id]);
 
   if (isLoading) {
-    return (
-      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        Loading...
-      </div>
-    );
+    return <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">Loading...</div>;
   }
 
   if (!category) {
@@ -62,8 +56,8 @@ export default function CategoryPage() {
   return (
     <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <div className="mb-6">
-        <Link
-          href="/"
+        <Link 
+          href="/" 
           className="inline-flex items-center text-sm text-gray-600 hover:text-indigo-600"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-1" />
@@ -71,15 +65,9 @@ export default function CategoryPage() {
         </Link>
       </div>
 
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          {category.name} Collection
-        </h1>
-      </div>
-
-      {/* Category Image Banner */}
+      {/* Category Image Banner - full screen height */}
       {category.image_url && (
-        <div className="relative w-full h-[300px] mb-12 overflow-hidden rounded-lg">
+        <div className="relative w-full h-screen mb-12 overflow-hidden rounded-lg">
           <Image
             src={category.image_url}
             alt={category.name}
@@ -90,16 +78,23 @@ export default function CategoryPage() {
           />
         </div>
       )}
-
+      
+      {/* Category Title - centered below image */}
+      <div className="mb-12 text-center">
+        <h1 className="text-3xl font-bold text-gray-900">{category.name} Collection</h1>
+      </div>
+      
       {products.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500">No products found in this category.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+        <div className="flex justify-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-screen-xl justify-items-center">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
         </div>
       )}
     </div>

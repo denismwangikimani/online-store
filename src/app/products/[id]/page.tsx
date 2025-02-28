@@ -6,10 +6,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Product } from "@/types/product";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import ProductCard from "@/app/components/shop/ProductCard";
 
 export default function ProductDetail() {
   const { id } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
+  const [recommendedProducts, setRecommendedProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
@@ -22,6 +24,11 @@ export default function ProductDetail() {
         if (!response.ok) throw new Error("Failed to fetch product");
         const data = await response.json();
         setProduct(data);
+        
+        // Once we have the product, fetch recommendations from other categories
+        if (data && data.category) {
+          fetchRecommendedProducts(data.category, data.id);
+        }
       } catch (error) {
         console.error("Error fetching product:", error);
       } finally {
@@ -29,13 +36,24 @@ export default function ProductDetail() {
       }
     }
 
+    async function fetchRecommendedProducts(currentCategory: string, currentProductId: number) {
+      try {
+        // Fetch products from categories other than the current one
+        const response = await fetch(`/api/shop/recommended-products?excludeCategory=${encodeURIComponent(currentCategory)}&excludeProduct=${currentProductId}`);
+        if (!response.ok) throw new Error("Failed to fetch recommended products");
+        const data = await response.json();
+        setRecommendedProducts(data);
+      } catch (error) {
+        console.error("Error fetching recommended products:", error);
+      }
+    }
+
     if (id) fetchProduct();
   }, [id]);
 
-  // Add this to your useEffect after fetching product
+  // Set default color and size selections
   useEffect(() => {
     if (product) {
-      // Set default selections if available
       if (product.colors?.length) {
         setSelectedColor(product.colors[0]);
       }
@@ -65,10 +83,7 @@ export default function ProductDetail() {
     return (
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center">
         <h1 className="text-2xl font-bold">Product not found</h1>
-        <Link
-          href="/"
-          className="text-indigo-600 hover:text-indigo-800 mt-4 inline-block"
-        >
+        <Link href="/" className="text-indigo-600 hover:text-indigo-800 mt-4 inline-block">
           Return to home
         </Link>
       </div>
@@ -87,7 +102,7 @@ export default function ProductDetail() {
         </Link>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-8">
+      <div className="flex flex-col md:flex-row gap-8 mb-16">
         {/* Product Image */}
         <div className="w-full md:w-1/2">
           <div className="relative aspect-square overflow-hidden rounded-lg bg-gray-100">
@@ -202,7 +217,6 @@ export default function ProductDetail() {
           <button
             onClick={() => {
               // Will implement addToCart functionality later
-              // For now, we could show a toast notification
               console.log(
                 `Added to cart: ${product.name}, Color: ${selectedColor}, Size: ${selectedSize}`
               );
@@ -226,6 +240,20 @@ export default function ProductDetail() {
           </p>
         </div>
       </div>
+
+      {/* Recommended Products Section */}
+      {recommendedProducts.length > 0 && (
+        <div className="mt-16 border-t border-gray-200 pt-16">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Complete Your Look</h2>
+          <div className="flex justify-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-screen-xl justify-items-center">
+              {recommendedProducts.slice(0, 4).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

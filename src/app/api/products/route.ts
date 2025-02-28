@@ -78,17 +78,25 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const cookieStore = await cookies();
+  const cookieStore = cookies();
   const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
-
+  
   try {
-    const product = await request.json();
+    const productData = await request.json();
+    
+    // Ensure colors and sizes are properly formatted as arrays
+    const colors = Array.isArray(productData.colors) ? productData.colors : [];
+    const sizes = Array.isArray(productData.sizes) ? productData.sizes : [];
+    
     const { data, error } = await supabase
       .from("products")
-      .insert([product])
+      .insert({
+        ...productData,
+        colors,
+        sizes
+      })
       .select()
       .single();
-
     if (error) throw error;
 
     return NextResponse.json(data);

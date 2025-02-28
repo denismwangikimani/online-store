@@ -9,4 +9,6 @@ export interface Product {
   created_at?: string;
   discount_percentage?: number;
   discounted_price?: number;
+  colors: string[];
+  sizes: string[];
 }

@@ -11,6 +11,8 @@ export default function ProductDetail() {
   const { id } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedColor, setSelectedColor] = useState<string>("");
+  const [selectedSize, setSelectedSize] = useState<string>("");
 
   useEffect(() => {
     async function fetchProduct() {
@@ -29,6 +31,19 @@ export default function ProductDetail() {
 
     if (id) fetchProduct();
   }, [id]);
+
+  // Add this to your useEffect after fetching product
+  useEffect(() => {
+    if (product) {
+      // Set default selections if available
+      if (product.colors?.length) {
+        setSelectedColor(product.colors[0]);
+      }
+      if (product.sizes?.length) {
+        setSelectedSize(product.sizes[0]);
+      }
+    }
+  }, [product]);
 
   if (isLoading) {
     return (
@@ -131,10 +146,78 @@ export default function ProductDetail() {
             </div>
           </div>
 
+          {/* Color Options */}
+          {product.colors && product.colors.length > 0 && (
+            <div className="mt-6">
+              <h2 className="text-sm font-medium text-gray-900">Color</h2>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {product.colors.map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    className={`relative w-9 h-9 rounded-full border ${
+                      selectedColor === color
+                        ? "ring-2 ring-indigo-500 ring-offset-2"
+                        : "border-gray-300"
+                    }`}
+                    style={{ backgroundColor: color }}
+                    onClick={() => setSelectedColor(color)}
+                  >
+                    <span className="sr-only">{color}</span>
+                  </button>
+                ))}
+              </div>
+              {selectedColor && (
+                <p className="mt-1 text-sm text-gray-500">
+                  Selected: {selectedColor}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Size Options */}
+          {product.sizes && product.sizes.length > 0 && (
+            <div className="mt-6">
+              <h2 className="text-sm font-medium text-gray-900">Size</h2>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {product.sizes.map((size) => (
+                  <button
+                    key={size}
+                    type="button"
+                    className={`py-2 px-4 text-sm font-medium rounded-md ${
+                      selectedSize === size
+                        ? "bg-indigo-600 text-white"
+                        : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                    }`}
+                    onClick={() => setSelectedSize(size)}
+                  >
+                    {size}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Add to Bag Button */}
           <button
-            className="mt-8 w-full bg-indigo-600 text-white py-3 px-4 rounded-md font-medium hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-            disabled
+            onClick={() => {
+              // Will implement addToCart functionality later
+              // For now, we could show a toast notification
+              console.log(
+                `Added to cart: ${product.name}, Color: ${selectedColor}, Size: ${selectedSize}`
+              );
+            }}
+            className={`mt-8 w-full py-3 px-4 rounded-md font-medium ${
+              (!product.colors?.length || selectedColor) &&
+              (!product.sizes?.length || selectedSize)
+                ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+            disabled={
+              (product.colors?.length > 0 && !selectedColor) ||
+              (product.sizes?.length > 0 && !selectedSize) ||
+              true // Keep disabled as per requirements until cart functionality is implemented
+            }
           >
             Add to Bag
           </button>

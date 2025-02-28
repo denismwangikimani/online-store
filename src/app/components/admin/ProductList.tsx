@@ -43,6 +43,18 @@ export default function ProductList({
             </th>
             <th
               scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+            >
+              Colors
+            </th>
+            <th
+              scope="col"
+              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+            >
+              Sizes
+            </th>
+            <th
+              scope="col"
               className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
             >
               Actions
@@ -95,6 +107,38 @@ export default function ProductList({
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 {product.stock}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="flex flex-wrap gap-1">
+                  {product.colors &&
+                    product.colors.map((color) => (
+                      <div
+                        key={color}
+                        className="w-4 h-4 rounded-full border border-gray-300"
+                        style={{ backgroundColor: color }}
+                        title={color}
+                      />
+                    ))}
+                  {!product.colors?.length && (
+                    <span className="text-gray-400 text-xs">None</span>
+                  )}
+                </div>
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap">
+                <div className="flex flex-wrap gap-1">
+                  {product.sizes &&
+                    product.sizes.map((size) => (
+                      <span
+                        key={size}
+                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
+                      >
+                        {size}
+                      </span>
+                    ))}
+                  {!product.sizes?.length && (
+                    <span className="text-gray-400 text-xs">None</span>
+                  )}
+                </div>
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button

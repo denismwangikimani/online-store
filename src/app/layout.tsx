@@ -1,31 +1,29 @@
-import type { Metadata } from "next";
-import { Geist } from "next/font/google";
-import "./globals.css";
-import Navbar from "./components/shop/Navbar";
-import { Toaster } from "react-hot-toast";
+import './globals.css'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import Navbar from './components/shop/Navbar'
+import { AuthProvider } from './contexts/AuthProvider'
 
-const geist = Geist({
-  subsets: ["latin"],
-  variable: "--font-geist",
-});
+const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: "House of Kimani",
-  description: "Your one-stop shop for quality products",
-};
+  title: 'House of Kimani',
+  description: 'Shop the latest fashion trends',
+}
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en">
-      <body className={`${geist.variable} font-sans antialiased`}>
-        <Toaster position="top-center" />
-        <Navbar />
-        <main>{children}</main>
+    <html lang="en" className="h-full">
+      <body className={`${inter.className} h-full`}>
+        <AuthProvider>
+          <Navbar />
+          <main>{children}</main>
+        </AuthProvider>
       </body>
     </html>
-  );
+  )
 }

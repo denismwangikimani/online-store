@@ -24,7 +24,7 @@ export default function ProductDetail() {
         if (!response.ok) throw new Error("Failed to fetch product");
         const data = await response.json();
         setProduct(data);
-        
+
         // Once we have the product, fetch recommendations from other categories
         if (data && data.category) {
           fetchRecommendedProducts(data.category, data.id);
@@ -36,11 +36,19 @@ export default function ProductDetail() {
       }
     }
 
-    async function fetchRecommendedProducts(currentCategory: string, currentProductId: number) {
+    async function fetchRecommendedProducts(
+      currentCategory: string,
+      currentProductId: number
+    ) {
       try {
         // Fetch products from categories other than the current one
-        const response = await fetch(`/api/shop/recommended-products?excludeCategory=${encodeURIComponent(currentCategory)}&excludeProduct=${currentProductId}`);
-        if (!response.ok) throw new Error("Failed to fetch recommended products");
+        const response = await fetch(
+          `/api/shop/recommended-products?excludeCategory=${encodeURIComponent(
+            currentCategory
+          )}&excludeProduct=${currentProductId}`
+        );
+        if (!response.ok)
+          throw new Error("Failed to fetch recommended products");
         const data = await response.json();
         setRecommendedProducts(data);
       } catch (error) {
@@ -83,7 +91,10 @@ export default function ProductDetail() {
     return (
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center">
         <h1 className="text-2xl font-bold">Product not found</h1>
-        <Link href="/" className="text-indigo-600 hover:text-indigo-800 mt-4 inline-block">
+        <Link
+          href="/"
+          className="text-indigo-600 hover:text-indigo-800 mt-4 inline-block"
+        >
           Return to home
         </Link>
       </div>
@@ -244,13 +255,14 @@ export default function ProductDetail() {
       {/* Recommended Products Section */}
       {recommendedProducts.length > 0 && (
         <div className="mt-16 border-t border-gray-200 pt-16">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">Complete Your Look</h2>
-          <div className="flex justify-center">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-screen-xl justify-items-center">
-              {recommendedProducts.slice(0, 4).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+            Complete Your Look
+          </h2>
+          {/* Standard grid layout matching featured products */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {recommendedProducts.slice(0, 4).map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
         </div>
       )}

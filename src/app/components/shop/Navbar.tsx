@@ -117,13 +117,13 @@ export default function Navbar() {
               // User is not logged in - show sign in/up buttons
               <div className="flex items-center space-x-4">
                 <Link
-                  href="/signin"
+                  href="/auth/signin"
                   className="text-sm font-medium text-gray-700 hover:text-indigo-600"
                 >
                   Sign in
                 </Link>
                 <Link
-                  href="/signup"
+                  href="/auth/signup"
                   className="bg-indigo-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-indigo-700"
                 >
                   Sign up
@@ -215,14 +215,14 @@ export default function Navbar() {
             ) : (
               <div className="space-y-1 px-4">
                 <Link
-                  href="/signin"
+                  href="/auth/signin"
                   className="block py-2 text-base font-medium text-gray-700 hover:text-indigo-600"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Sign in
                 </Link>
                 <Link
-                  href="/signup"
+                  href="/auth/signup"
                   className="block py-2 text-base font-medium text-indigo-600 hover:text-indigo-800"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >

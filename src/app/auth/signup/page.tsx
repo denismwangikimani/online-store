@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/app/contexts/AuthProvider";
-import { useRouter } from "next/navigation";
+//import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/app/contexts/AuthProvider";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
@@ -15,45 +15,63 @@ export default function SignUp() {
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { signUp, signInWithGoogle } = useAuth();
-  const router = useRouter();
+  //const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
     setMessage("");
-  
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       setIsLoading(false);
       return;
     }
-  
+
+    console.log("Starting sign up process");
     const { error } = await signUp(email, password, {
       full_name: `${firstName} ${lastName}`,
       first_name: firstName,
       last_name: lastName,
     });
-  
+
     if (error) {
+      console.error("Sign up error:", error);
       setError(error.message);
     } else {
       setMessage(
         "Sign up successful! Please check your email for verification."
       );
     }
-  
+
     setIsLoading(false);
   };
 
   const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    setError("");
+    try {
+      setIsLoading(true);
+      setError("");
 
-    const { error } = await signInWithGoogle();
+      console.log("Starting Google sign in from signup page");
+      console.log("signInWithGoogle is:", typeof signInWithGoogle);
 
-    if (error) {
-      setError(error.message);
+      if (typeof signInWithGoogle !== "function") {
+        throw new Error("Google sign in is not available");
+      }
+
+      const { error } = await signInWithGoogle();
+
+      if (error) {
+        console.error("Google sign in error:", error);
+        setError(error.message);
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error("Unexpected error during Google sign in:", error);
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
       setIsLoading(false);
     }
   };

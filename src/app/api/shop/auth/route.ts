@@ -10,8 +10,13 @@ export async function GET(request: Request) {
     const cookieStore = cookies();
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
-    // Exchange the code for a session
-    await supabase.auth.exchangeCodeForSession(code);
+    try {
+      // Exchange the code for a session
+      await supabase.auth.exchangeCodeForSession(code);
+      console.log("Successfully exchanged code for session");
+    } catch (error) {
+      console.error("Error exchanging code for session:", error);
+    }
   }
 
   // Redirect back to the home page

@@ -127,19 +127,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     metadata: Record<string, string>
   ) => {
     try {
-      console.log("Signing up user with email:", email);
       const result = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/api/auth/callback`,
+          emailRedirectTo: `${window.location.origin}/api/shop/auth`, // Changed from /api/auth/callback
           data: {
             ...metadata,
             role: "customer",
           },
         },
       });
-      console.log("Sign up result:", result);
       return result;
     } catch (error) {
       console.error("Sign up error:", error);
@@ -176,14 +174,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Sign in with Google - explicitly defined
   const signInWithGoogle = async () => {
     try {
-      console.log("Initiating Google sign in");
       const result = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`, // <-- CHANGED FROM /auth/callback
+          redirectTo: `${window.location.origin}/api/shop/auth`, // Changed from /api/auth/callback
           queryParams: {
             access_type: "offline",
             prompt: "consent",
@@ -191,7 +187,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       });
 
-      console.log("Google sign in result:", result);
       return result;
     } catch (error) {
       console.error("Google sign in error:", error);

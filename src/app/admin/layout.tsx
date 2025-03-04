@@ -1,15 +1,16 @@
 "use client";
 
-import AdminLayout from "../components/admin/layout/AdminLayout";
+import AdminLayoutComponent from "../components/admin/layout/AdminLayout";
 import { Toaster } from "react-hot-toast";
-import { usePathname } from 'next/navigation';
+import { usePathname } from "next/navigation";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  // Get current pathname using Next.js hook instead of window.location
+  // Get current pathname using Next.js hook
   const pathname = usePathname();
-  
-  // Check if the current page is login or signup to not show sidebar
-  const isAuthPage = pathname === "/admin/login" || pathname === "/admin/signup";
+
+  // Check if the current page is login or signup
+  const isAuthPage =
+    pathname === "/admin/login" || pathname === "/admin/signup";
 
   if (isAuthPage) {
     return (
@@ -20,5 +21,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return <AdminLayout>{children}</AdminLayout>;
+  return (
+    <>
+      <Toaster position="top-center" />
+      <AdminLayoutComponent>{children}</AdminLayoutComponent>
+    </>
+  );
 }

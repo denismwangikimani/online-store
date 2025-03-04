@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import HomeBanner from "./components/shop/HomeBanner";
-import ProductCard from "./components/shop/ProductCard";
-import CategorySection from "./components/shop/CategorySection";
+import HomeBanner from "@/app/components/shop/HomeBanner";
+import ProductCard from "@/app/components/shop/ProductCard";
+import CategorySection from "@/app/components/shop/CategorySection";
 import { Product } from "@/types/product";
 import { Category } from "@/types/category";
 

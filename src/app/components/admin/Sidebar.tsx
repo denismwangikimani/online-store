@@ -4,6 +4,7 @@ import {
   PhotoIcon,
   SquaresPlusIcon,
   ArrowRightOnRectangleIcon,
+  UsersIcon,
 } from "@heroicons/react/24/outline";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
@@ -76,6 +77,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             onClick={onClose}
           >
             Discounts
+          </SidebarLink>
+
+          <SidebarLink
+            href="/admin/customers"
+            icon={<UsersIcon />}
+            onClick={onClose}
+          >
+            Customers
           </SidebarLink>
 
           <SidebarLink

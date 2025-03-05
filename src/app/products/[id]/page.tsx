@@ -7,6 +7,8 @@ import Link from "next/link";
 import { Product } from "@/types/product";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import ProductCard from "@/app/components/shop/ProductCard";
+import { useCart } from "@/app/contexts/CartContext";
+import { useAuth } from "@/app/contexts/AuthProvider";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -15,6 +17,8 @@ export default function ProductDetail() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedColor, setSelectedColor] = useState<string>("");
   const [selectedSize, setSelectedSize] = useState<string>("");
+  const { addToCart } = useCart();
+  const { user } = useAuth();
 
   useEffect(() => {
     async function fetchProduct() {
@@ -226,10 +230,17 @@ export default function ProductDetail() {
 
           {/* Add to Bag Button */}
           <button
-            onClick={() => {
-              // Will implement addToCart functionality later
-              console.log(
-                `Added to cart: ${product.name}, Color: ${selectedColor}, Size: ${selectedSize}`
+            onClick={async () => {
+              if (!user) {
+                toast.error("Please sign in to add items to your cart");
+                return;
+              }
+
+              await addToCart(
+                product.id,
+                1,
+                product.colors?.length ? selectedColor : null,
+                product.sizes?.length ? selectedSize : null
               );
             }}
             className={`mt-8 w-full py-3 px-4 rounded-md font-medium ${
@@ -239,12 +250,12 @@ export default function ProductDetail() {
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
             disabled={
+              !user ||
               (product.colors?.length > 0 && !selectedColor) ||
-              (product.sizes?.length > 0 && !selectedSize) ||
-              true // Keep disabled as per requirements until cart functionality is implemented
+              (product.sizes?.length > 0 && !selectedSize)
             }
           >
-            Add to Bag
+            {user ? "Add to Bag" : "Sign in to Add to Bag"}
           </button>
           <p className="text-xs text-gray-500 mt-2 text-center">
             (Shopping cart functionality coming soon)

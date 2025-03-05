@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/app/contexts/AuthProvider";
+import { useCart } from "@/app/contexts/CartContext";
 import {
   Bars3Icon,
   XMarkIcon,
@@ -17,6 +18,7 @@ import { Fragment } from "react";
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, profile, isLoading, signOut } = useAuth();
+  const { itemCount } = useCart();
 
   // Get user's initials for the avatar placeholder
   const getInitials = () => {
@@ -47,10 +49,15 @@ export default function Navbar() {
             {/* Shopping bag icon */}
             <Link
               href="/cart"
-              className="p-2 rounded-full text-gray-500 hover:text-indigo-600 hover:bg-gray-100 mr-3"
+              className="p-2 rounded-full text-gray-500 hover:text-indigo-600 hover:bg-gray-100 mr-3 relative"
             >
               <span className="sr-only">Shopping bag</span>
               <ShoppingBagIcon className="h-6 w-6" aria-hidden="true" />
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {itemCount}
+                </span>
+              )}
             </Link>
 
             {/* Auth/Profile section */}

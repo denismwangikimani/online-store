@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+//import { useAuth } from "@/app/contexts/AuthProvider";
+import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
+//import Image from "next/image";
 import Link from "next/link";
 import { CheckCircleIcon } from "@heroicons/react/24/outline";
 import { useCart } from "@/app/contexts/CartContext";
-import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 
 export default function CheckoutSuccess() {
   const searchParams = useSearchParams();

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { cookies } from "next/headers";
 
 export async function GET(
@@ -9,24 +9,14 @@ export async function GET(
   try {
     const orderId = params.id;
 
-    // Get the Supabase client
-    const cookieStore = cookies();
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value;
-          },
-        },
-      }
-    );
+    // Create the Supabase client properly
+    const supabase = createRouteHandlerClient({ cookies });
 
     // Verify authentication
     const {
       data: { session },
     } = await supabase.auth.getSession();
+    
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -40,6 +30,7 @@ export async function GET(
       .single();
 
     if (orderError || !order) {
+      console.error("Order error:", orderError);
       return NextResponse.json(
         { error: "Order not found or unauthorized" },
         { status: 404 }

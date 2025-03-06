@@ -107,6 +107,18 @@ export default function Navbar() {
                     </Menu.Item>
                     <Menu.Item>
                       {({ active }) => (
+                        <Link
+                          href="/account/orders"
+                          className={`${
+                            active ? "bg-gray-100" : ""
+                          } block px-4 py-2 text-sm text-gray-700`}
+                        >
+                          Your Orders
+                        </Link>
+                      )}
+                    </Menu.Item>
+                    <Menu.Item>
+                      {({ active }) => (
                         <button
                           onClick={() => signOut()}
                           className={`${
@@ -206,6 +218,14 @@ export default function Navbar() {
                   >
                     <UserCircleIcon className="h-6 w-6 mr-2" />
                     Your Profile
+                  </Link>
+                  <Link
+                    href="/account/orders"
+                    className="flex items-center px-4 py-2 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <ShoppingBagIcon className="h-6 w-6 mr-2" />
+                    Your Orders
                   </Link>
                   <button
                     onClick={() => {

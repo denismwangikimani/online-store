@@ -9,6 +9,7 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import ProductCard from "@/app/components/shop/ProductCard";
 import { useCart } from "@/app/contexts/CartContext";
 import { useAuth } from "@/app/contexts/AuthProvider";
+import toast from "react-hot-toast";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -62,6 +63,64 @@ export default function ProductDetail() {
 
     if (id) fetchProduct();
   }, [id]);
+
+  const handleDirectCheckout = async () => {
+    if (!product) return;
+
+    if (!user) {
+      toast.error("Please sign in to checkout");
+      return;
+    }
+
+    if (product.colors?.length > 0 && !selectedColor) {
+      toast.error("Please select a color");
+      return;
+    }
+
+    if (product.sizes?.length > 0 && !selectedSize) {
+      toast.error("Please select a size");
+      return;
+    }
+
+    try {
+      // Create a checkout item from the current product
+      const checkoutItem = {
+        id: product.id,
+        name: product.name,
+        price: product.discount_percentage
+          ? product.discounted_price
+          : product.price,
+        image_url: product.image_url,
+        quantity: 1,
+        color: selectedColor,
+        size: selectedSize,
+      };
+
+      const response = await fetch("/api/shop/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: [checkoutItem],
+          checkoutType: "direct",
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Checkout failed");
+      }
+
+      const { url } = await response.json();
+
+      // Redirect to Stripe checkout
+      window.location.href = url;
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("Checkout failed. Please try again.");
+    }
+  };
 
   // Set default color and size selections
   useEffect(() => {
@@ -228,35 +287,54 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* Add to Bag Button */}
-          <button
-            onClick={async () => {
-              if (!user) {
-                toast.error("Please sign in to add items to your cart");
-                return;
-              }
+          {/* Add to Bag and Checkout Buttons */}
+          <div className="flex flex-col sm:flex-row gap-3 mt-8">
+            <button
+              onClick={async () => {
+                if (!user) {
+                  toast.error("Please sign in to add items to your cart");
+                  return;
+                }
 
-              await addToCart(
-                product.id,
-                1,
-                product.colors?.length ? selectedColor : null,
-                product.sizes?.length ? selectedSize : null
-              );
-            }}
-            className={`mt-8 w-full py-3 px-4 rounded-md font-medium ${
-              (!product.colors?.length || selectedColor) &&
-              (!product.sizes?.length || selectedSize)
-                ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
-            disabled={
-              !user ||
-              (product.colors?.length > 0 && !selectedColor) ||
-              (product.sizes?.length > 0 && !selectedSize)
-            }
-          >
-            {user ? "Add to Bag" : "Sign in to Add to Bag"}
-          </button>
+                await addToCart(
+                  product.id,
+                  1,
+                  product.colors?.length ? selectedColor : null,
+                  product.sizes?.length ? selectedSize : null
+                );
+              }}
+              className={`w-full py-3 px-4 rounded-md font-medium ${
+                (!product.colors?.length || selectedColor) &&
+                (!product.sizes?.length || selectedSize)
+                  ? "bg-indigo-600 text-white hover:bg-indigo-700"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+              disabled={
+                !user ||
+                (product.colors?.length > 0 && !selectedColor) ||
+                (product.sizes?.length > 0 && !selectedSize)
+              }
+            >
+              {user ? "Add to Bag" : "Sign in to Add to Bag"}
+            </button>
+
+            <button
+              onClick={handleDirectCheckout}
+              className={`w-full py-3 px-4 rounded-md font-medium ${
+                (!product.colors?.length || selectedColor) &&
+                (!product.sizes?.length || selectedSize)
+                  ? "bg-gray-800 text-white hover:bg-gray-900"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
+              disabled={
+                !user ||
+                (product.colors?.length > 0 && !selectedColor) ||
+                (product.sizes?.length > 0 && !selectedSize)
+              }
+            >
+              {user ? "Buy Now" : "Sign in to Buy"}
+            </button>
+          </div>
           <p className="text-xs text-gray-500 mt-2 text-center">
             (Shopping cart functionality coming soon)
           </p>

@@ -11,13 +11,17 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@heroicons/react": "^2.2.0",
+    "@stripe/stripe-js": "^5.8.0",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.49.1",
     "next": "15.1.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-dropzone": "^14.3.5",
     "react-hot-toast": "^2.5.1",
-    "recharts": "^2.15.1"
+    "recharts": "^2.15.1",
+    "stripe": "^17.7.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

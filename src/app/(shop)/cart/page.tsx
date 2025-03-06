@@ -92,13 +92,35 @@ export default function Cart() {
     await updateQuantity(itemId, newQuantity);
   };
 
-  const handleCheckout = () => {
-    setProcessingCheckout(true);
-    // This is a placeholder - we'll implement actual checkout later
-    setTimeout(() => {
-      toast.info("Checkout functionality will be implemented soon with Stripe");
+  const handleCheckout = async () => {
+    try {
+      setProcessingCheckout(true);
+      
+      const response = await fetch("/api/shop/checkout", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          items: items,
+          checkoutType: 'cart' 
+        }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Checkout failed");
+      }
+      
+      const { url } = await response.json();
+      
+      // Redirect to Stripe checkout
+      window.location.href = url;
+    } catch (error) {
+      console.error("Checkout error:", error);
+      toast.error("Checkout failed. Please try again.");
       setProcessingCheckout(false);
-    }, 1500);
+    }
   };
 
   return (

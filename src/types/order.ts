@@ -1,4 +1,20 @@
-// Add these to your existing types.ts file
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  product_id: number;
+  quantity: number;
+  price: number;
+  color?: string | null;
+  size?: string | null;
+  created_at: string;
+  products?: {
+    id: number;
+    name: string;
+    price: number;
+    image_url?: string;
+    category?: string;
+  };
+}
 
 export interface Order {
   id: string;
@@ -6,38 +22,36 @@ export interface Order {
   order_number: string;
   status: string;
   total_amount: number;
-  payment_intent_id: string | null;
-  shipping_address: any;
-  billing_address: any;
+  payment_intent_id?: string;
+  shipping_address?: {
+    name?: string;
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+  };
+  billing_address?: {
+    name?: string;
+    line1: string;
+    line2?: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+  };
   created_at: string;
-  updated_at: string;
+  updated_at?: string;
   profiles?: {
     id: string;
     email: string;
   };
   customer_profiles?: {
-    first_name: string | null;
-    last_name: string | null;
-    email: string | null;
-    phone: string | null;
-    image_url: string | null;
+    first_name?: string;
+    last_name?: string;
+    email?: string;
+    image_url?: string;
   };
-}
-
-export interface OrderItem {
-  id: string;
-  order_id: string;
-  product_id: number;
-  quantity: number;
-  price: number;
-  color: string | null;
-  size: string | null;
-  created_at: string;
-  products: {
-    id: number;
-    name: string;
-    price: number;
-    image_url: string;
-    category: string;
-  };
+  items?: OrderItem[];
 }

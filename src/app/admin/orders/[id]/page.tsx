@@ -36,7 +36,7 @@ export default function AdminOrderDetailPage() {
 
         setIsLoading(true);
 
-        const response = await fetch(`/api/orders/${id}`);
+        const response = await fetch(`/api/admin/order/${id}`);
 
         if (response.status === 401) {
           toast.error("Please login to access this page");
@@ -81,7 +81,7 @@ export default function AdminOrderDetailPage() {
     try {
       setUpdatingStatus(true);
 
-      const response = await fetch(`/api/orders/${id}`, {
+      const response = await fetch(`/api/admin/order/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

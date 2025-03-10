@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useRouter } from "next/navigation";
+//import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
@@ -9,7 +9,7 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  //const router = useRouter();
   const supabase = createClientComponentClient();
 
   // Inside the handleLogin function
@@ -63,9 +63,8 @@ export default function AdminLogin() {
       toast.success("Login successful");
       console.log("Redirecting to admin products page");
 
-      // Try using replace instead of push for more reliable navigation
-      router.refresh(); // Refresh the router cache
-      router.replace("/admin/products"); // Use replace instead of push
+      // Force a hard navigation instead of client-side navigation
+      window.location.href = "/admin/products";
     } catch (error) {
       console.error("Login error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to login");

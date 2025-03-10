@@ -11,6 +11,7 @@ import {
   PhotoIcon,
   UsersIcon, // Import UsersIcon
   ArrowRightOnRectangleIcon,
+  ClipboardDocumentListIcon,
 } from "@heroicons/react/24/outline";
 
 interface SidebarProps {
@@ -83,6 +84,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           >
             Products
           </SidebarLink>
+
+          <SidebarLink
+                      href="/admin/orders"
+                      icon={<ClipboardDocumentListIcon />}
+                      onClick={onClose}
+                    >
+                      Orders
+                    </SidebarLink>
 
           <SidebarLink
             href="/admin/categories"

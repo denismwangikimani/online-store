@@ -12,11 +12,14 @@ export default function AdminLogin() {
   const router = useRouter();
   const supabase = createClientComponentClient();
 
+  // Inside the handleLogin function
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      console.log("Attempting login with email:", email);
+
       const {
         data: { user },
         error: signInError,
@@ -25,9 +28,17 @@ export default function AdminLogin() {
         password,
       });
 
-      if (signInError) throw signInError;
+      if (signInError) {
+        console.error("Sign in error:", signInError);
+        throw signInError;
+      }
 
-      if (!user) throw new Error("No user found");
+      if (!user) {
+        console.error("No user returned after login");
+        throw new Error("No user found");
+      }
+
+      console.log("Login successful, checking admin status for user:", user.id);
 
       // Check if user is admin
       const { data: profile, error: profileError } = await supabase
@@ -36,17 +47,27 @@ export default function AdminLogin() {
         .eq("id", user.id)
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        console.error("Profile fetch error:", profileError);
+        throw profileError;
+      }
+
+      console.log("Profile data:", profile);
 
       if (!profile?.is_admin) {
+        console.error("User is not an admin");
         await supabase.auth.signOut();
-        throw new Error("Unauthorized access");
+        throw new Error("Unauthorized access - you must be an admin");
       }
 
       toast.success("Login successful");
-      router.push("/admin/products");
+      console.log("Redirecting to admin products page");
+
+      // Try using replace instead of push for more reliable navigation
+      router.refresh(); // Refresh the router cache
+      router.replace("/admin/products"); // Use replace instead of push
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Login error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to login");
     } finally {
       setIsLoading(false);

@@ -54,4 +54,14 @@ export interface Order {
     image_url?: string;
   };
   items?: OrderItem[];
+
+  // Add metadata
+  metadata?: {
+    userId?: string;
+    orderNumber?: string;
+    checkoutType?: string;
+    customerName?: string;
+    customerEmail?: string;
+    customerPhone?: string;
+  };
 }

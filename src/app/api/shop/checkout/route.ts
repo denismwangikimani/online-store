@@ -12,19 +12,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(request: Request) {
   try {
     // Create the Supabase client properly
-    const supabase = createRouteHandlerClient({ cookies });
+    const cookieStore = cookies();
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
     // Verify authentication
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    
+
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const userId = session.user.id;
-    const { items, checkoutType } = await request.json();
+    const { items, checkoutType, shippingDetails } = await request.json();
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
@@ -32,6 +33,26 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    // Validate shipping details
+    if (
+      !shippingDetails ||
+      !shippingDetails.name ||
+      !shippingDetails.phone ||
+      !shippingDetails.address
+    ) {
+      return NextResponse.json(
+        { error: "Shipping details are required" },
+        { status: 400 }
+      );
+    }
+
+    // Fetch customer profile for any saved details
+    const { data: customerProfile } = await supabase
+      .from("customer_profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
 
     // Generate a unique order number
     const orderNumber = `ORD-${Date.now()}-${randomUUID().substring(0, 6)}`;
@@ -48,7 +69,10 @@ export async function POST(request: Request) {
           metadata: {
             productId: item.products ? item.products.id : item.id,
             color: item.color || "",
-            size: item.size || ""
+            size: item.size || "",
+            category: item.products
+              ? item.products.category
+              : item.category || "",
           },
         },
         unit_amount: Math.round(
@@ -66,17 +90,42 @@ export async function POST(request: Request) {
 
     // Create a new Stripe checkout session
     const stripeSession = await stripe.checkout.sessions.create({
-      payment_method_types: ["card"],
+      payment_method_types: [
+        "card",
+      ] as Stripe.Checkout.SessionCreateParams.PaymentMethodType[],
       line_items: lineItems,
       mode: "payment",
       success_url: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL}/checkout/cancel`,
+      shipping_address_collection: {
+        allowed_countries: ["US", "CA", "GB", "KE"],
+      },
+      phone_number_collection: {
+        enabled: true,
+      },
       metadata: {
         userId,
         orderNumber,
         checkoutType: checkoutType || "cart",
+        customerName: customerProfile?.first_name
+          ? `${customerProfile.first_name} ${customerProfile.last_name || ""}`
+          : shippingDetails.name,
+        customerEmail: session.user.email ?? "", // Add null check
+        customerPhone: shippingDetails.phone,
       },
     });
+
+    // Format shipping address data
+    const shippingAddressData = {
+      name: shippingDetails.name,
+      phone: shippingDetails.phone,
+      line1: shippingDetails.address.line1,
+      line2: shippingDetails.address.line2 || null,
+      city: shippingDetails.address.city,
+      state: shippingDetails.address.state,
+      postal_code: shippingDetails.address.postal_code,
+      country: shippingDetails.address.country,
+    };
 
     // Store initial order information
     const { data: order, error: orderError } = await supabase
@@ -87,6 +136,9 @@ export async function POST(request: Request) {
         status: "pending",
         total_amount: totalAmount,
         payment_intent_id: stripeSession.payment_intent as string,
+        shipping_address: shippingAddressData,
+        // Optional billing address if different from shipping
+        billing_address: shippingDetails.billingAddress || shippingAddressData,
       })
       .select()
       .single();
@@ -99,15 +151,21 @@ export async function POST(request: Request) {
       );
     }
 
-    // Store order items
-    const orderItems = items.map((item) => ({
-      order_id: order.id,
-      product_id: item.products ? item.products.id : item.id,
-      quantity: item.quantity || 1,
-      price: item.price || item.discounted_price || 0,
-      color: item.color || null,
-      size: item.size || null,
-    }));
+    // Store order items with product details
+    const orderItems = items.map((item) => {
+      const product = item.products || item;
+      return {
+        order_id: order.id,
+        product_id: product.id,
+        quantity: item.quantity || 1,
+        price: item.price || item.discounted_price || 0,
+        color: item.color || null,
+        size: item.size || null,
+        product_name: product.name,
+        product_image: product.image_url,
+        product_category: product.category,
+      };
+    });
 
     const { error: orderItemsError } = await supabase
       .from("order_items")
@@ -117,6 +175,21 @@ export async function POST(request: Request) {
       console.error("Error creating order items:", orderItemsError);
       // We don't return an error here since the order has been created
       // and the Stripe session has been initialized
+    }
+
+    // Update customer profile with the latest shipping information if they opted to save it
+    if (shippingDetails.saveDetails) {
+      await supabase.from("customer_profiles").upsert(
+        {
+          id: userId,
+          phone: shippingDetails.phone,
+          address: shippingDetails.address,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "id",
+        }
+      );
     }
 
     return NextResponse.json({

@@ -20,7 +20,8 @@ export async function GET(request: Request) {
     }
 
     // Create the Supabase client properly
-    const supabase = createRouteHandlerClient({ cookies });
+    const cookieStore = cookies();
+    const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
     // Verify authentication
     const {
@@ -31,7 +32,9 @@ export async function GET(request: Request) {
     }
 
     // Get the Stripe session
-    const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
+    const stripeSession = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["customer", "shipping_details"],
+    });
 
     if (!stripeSession || stripeSession.metadata?.userId !== session.user.id) {
       return NextResponse.json(
@@ -40,15 +43,33 @@ export async function GET(request: Request) {
       );
     }
 
-    // Update order status if needed
-    if (stripeSession.payment_status === "paid") {
+    // Extract shipping details from Stripe
+    const shippingDetails = stripeSession.shipping_details;
+
+    // Update order with shipping details from Stripe if available
+    if (stripeSession.payment_status === "paid" && shippingDetails) {
+      const shippingAddress = {
+        name: shippingDetails.name,
+        phone: shippingDetails.phone,
+        line1: shippingDetails.address?.line1,
+        line2: shippingDetails.address?.line2 || null,
+        city: shippingDetails.address?.city,
+        state: shippingDetails.address?.state,
+        postal_code: shippingDetails.address?.postal_code,
+        country: shippingDetails.address?.country,
+      };
+
       const { error } = await supabase
         .from("orders")
-        .update({ status: "paid" })
+        .update({
+          status: "paid",
+          shipping_address: shippingAddress,
+          updated_at: new Date().toISOString(),
+        })
         .eq("payment_intent_id", stripeSession.payment_intent);
 
       if (error) {
-        console.error("Error updating order status:", error);
+        console.error("Error updating order status and shipping:", error);
       }
     }
 

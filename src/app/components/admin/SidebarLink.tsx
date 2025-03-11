@@ -12,6 +12,7 @@ import {
   UsersIcon, // Import UsersIcon
   ArrowRightOnRectangleIcon,
   ClipboardDocumentListIcon,
+  ChartBarIcon,
 } from "@heroicons/react/24/outline";
 
 interface SidebarProps {
@@ -78,6 +79,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* Navigation links */}
         <nav className="px-4 py-6 space-y-2">
           <SidebarLink
+            href="/admin/dashboard"
+            icon={<ChartBarIcon />}
+            onClick={onClose}
+          >
+            Dashboard
+          </SidebarLink>
+
+          <SidebarLink
             href="/admin/products"
             icon={<ShoppingBagIcon />}
             onClick={onClose}
@@ -86,12 +95,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           </SidebarLink>
 
           <SidebarLink
-                      href="/admin/orders"
-                      icon={<ClipboardDocumentListIcon />}
-                      onClick={onClose}
-                    >
-                      Orders
-                    </SidebarLink>
+            href="/admin/orders"
+            icon={<ClipboardDocumentListIcon />}
+            onClick={onClose}
+          >
+            Orders
+          </SidebarLink>
 
           <SidebarLink
             href="/admin/categories"
@@ -116,7 +125,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           >
             Banners
           </SidebarLink>
-          
+
           {/* Add new Customers link */}
           <SidebarLink
             href="/admin/customers"

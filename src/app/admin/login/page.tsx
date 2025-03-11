@@ -64,7 +64,7 @@ export default function AdminLogin() {
       console.log("Redirecting to admin products page");
 
       // Force a hard navigation instead of client-side navigation
-      window.location.href = "/admin/products";
+      window.location.href = "/admin/dashboard";
     } catch (error) {
       console.error("Login error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to login");

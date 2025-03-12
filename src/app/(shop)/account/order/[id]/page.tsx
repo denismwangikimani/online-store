@@ -24,14 +24,24 @@ type OrderItem = {
   };
 };
 
+type Address = {
+  name: string;
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+};
+
 type Order = {
   id: string;
   order_number: string;
   status: string;
   total_amount: number;
   created_at: string;
-  shipping_address: any;
-  billing_address: any;
+  shipping_address: Address;
+  billing_address: Address;
 };
 
 export default function OrderDetailPage() {

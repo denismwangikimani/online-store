@@ -17,8 +17,13 @@ interface CustomerProfile {
 }
 
 // Define return types for auth functions
+type AuthData = {
+  session?: Session | null;
+  user?: User | null;
+};
+
 interface AuthReturn {
-  data: any; // We need to use any here because Supabase returns different data shapes
+  data: AuthData | null;
   error: Error | null;
 }
 
@@ -151,7 +156,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signInWithGoogle = async () => {
-    const result = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
@@ -161,8 +166,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       },
     });
-
-    return result;
+  
+    return {
+      data: data ? { session: null, user: null } : null,
+      error,
+    };
   };
 
   const value = {

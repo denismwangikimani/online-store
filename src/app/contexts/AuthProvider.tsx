@@ -23,6 +23,11 @@ interface CustomerProfile {
 }
 
 // Define auth context type with explicit function signatures
+type AuthData = {
+  session?: Session | null;
+  user?: User | null;
+};
+
 type AuthContextType = {
   user: User | null;
   session: Session | null;
@@ -32,12 +37,15 @@ type AuthContextType = {
     email: string,
     password: string,
     metadata: Record<string, string>
-  ) => Promise<{ data: any; error: Error | null }>;
+  ) => Promise<{ data: AuthData | null; error: Error | null }>;
   signIn: (
     email: string,
     password: string
-  ) => Promise<{ data: any; error: Error | null }>;
-  signInWithGoogle: () => Promise<{ data: any; error: Error | null }>;
+  ) => Promise<{ data: AuthData | null; error: Error | null }>;
+  signInWithGoogle: () => Promise<{
+    data: AuthData | null;
+    error: Error | null;
+  }>;
   signOut: () => Promise<{ error: Error | null }>;
 };
 
@@ -186,8 +194,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           },
         },
       });
-
-      return result;
+  
+      if (result.error) {
+        return { data: null, error: result.error as Error };
+      }
+  
+      return { data: { session: null, user: null }, error: null };
     } catch (error) {
       console.error("Google sign in error:", error);
       return { data: null, error: error as Error };
@@ -203,7 +215,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUp,
     signIn,
     signOut,
-    signInWithGoogle, // Make sure this is included
+    signInWithGoogle, 
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

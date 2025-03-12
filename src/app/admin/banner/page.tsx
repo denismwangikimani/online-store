@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Banner } from "@/types/banner";
 import BannerForm from "@/app/components/admin/BannerForm";
 import BannerList from "@/app/components/admin/BannerList";
@@ -13,11 +13,7 @@ export default function BannerManagement() {
   const [isLoading, setIsLoading] = useState(false);
   const supabase = createClientComponentClient();
 
-  useEffect(() => {
-    fetchBanners();
-  }, []);
-
-  const fetchBanners = async () => {
+  const fetchBanners = useCallback(async () => {
     try {
       const { data, error } = await supabase.from("banners").select("*");
       if (error) throw error;
@@ -26,14 +22,22 @@ export default function BannerManagement() {
       toast.error("Error fetching banners");
       console.error(error);
     }
-  };
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchBanners();
+  }, [fetchBanners]);
 
   const handleSubmit = async (bannerData: Partial<Banner>) => {
     setIsLoading(true);
     try {
       if (selectedBanner) {
         // Update existing banner
-        if (selectedBanner.image_url && bannerData.image_url && bannerData.image_url !== selectedBanner.image_url) {
+        if (
+          selectedBanner.image_url &&
+          bannerData.image_url &&
+          bannerData.image_url !== selectedBanner.image_url
+        ) {
           await deleteBannerImage(selectedBanner.image_url);
         }
 
@@ -47,9 +51,7 @@ export default function BannerManagement() {
         toast.success("Banner updated successfully");
       } else {
         // Create new banner
-        const { error } = await supabase
-          .from("banners")
-          .insert([bannerData]);
+        const { error } = await supabase.from("banners").insert([bannerData]);
 
         if (error) throw error;
 
@@ -57,7 +59,7 @@ export default function BannerManagement() {
       }
       fetchBanners();
       //restart the banner
-      setSelectedBanner(null); 
+      setSelectedBanner(null);
     } catch (error) {
       toast.error("Error saving banner");
       console.error(error);
@@ -79,10 +81,7 @@ export default function BannerManagement() {
         await deleteBannerImage(imageUrl);
       }
 
-      const { error } = await supabase
-        .from("banners")
-        .delete()
-        .eq("id", id);
+      const { error } = await supabase.from("banners").delete().eq("id", id);
 
       if (error) throw error;
 

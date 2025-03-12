@@ -100,16 +100,15 @@ export default function CustomerGrowth({
       ctx.stroke();
 
       // Add area fill
-      const lastPoint = data[data.length - 1];
+      //const lastPoint = data[data.length - 1];
       const lastX = padding + (data.length - 1) * pointWidth;
-      const lastY =
-        height - padding - (lastPoint.count / maxCount) * chartHeight;
+      //const lastY =
+        //height - padding - (lastPoint.count / maxCount) * chartHeight;
 
       ctx.lineTo(lastX, height - padding);
       ctx.lineTo(padding, height - padding);
       ctx.fillStyle = "rgba(99, 102, 241, 0.1)"; // Indigo-500 with opacity
       ctx.fill();
-
       // Draw dots for each data point
       data.forEach((point, index) => {
         const x = padding + index * pointWidth;

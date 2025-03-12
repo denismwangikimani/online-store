@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
@@ -6,7 +7,7 @@ export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createRouteHandlerClient({ cookies: await cookies() });
+  const supabase = createRouteHandlerClient({ cookies });
 
   try {
     const { data, error } = await supabase
@@ -18,7 +19,7 @@ export async function GET(
     if (error) throw error;
 
     return NextResponse.json(data);
-  } catch (error: unknown) {
+  } catch (error: any) {
     return NextResponse.json(
       { error: error.message || "Error fetching banner" },
       { status: 500 }
@@ -30,7 +31,7 @@ export async function PUT(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createRouteHandlerClient({ cookies: await cookies() });
+  const supabase = createRouteHandlerClient({ cookies });
 
   try {
     const banner = await request.json();
@@ -44,7 +45,7 @@ export async function PUT(
     if (error) throw error;
 
     return NextResponse.json(data);
-  } catch (error: unkown) {
+  } catch (error: any) {
     return NextResponse.json(
       { error: error.message || "Error updating banner" },
       { status: 500 }
@@ -56,7 +57,7 @@ export async function DELETE(
   request: Request,
   { params }: { params: { id: string } }
 ) {
-  const supabase = createRouteHandlerClient({ cookies: await cookies() });
+  const supabase = createRouteHandlerClient({ cookies });
 
   try {
     const { error } = await supabase
@@ -67,7 +68,7 @@ export async function DELETE(
     if (error) throw error;
 
     return NextResponse.json({ success: true });
-  } catch (error: unknown) {
+  } catch (error: any) {
     return NextResponse.json(
       { error: error.message || "Error deleting banner" },
       { status: 500 }

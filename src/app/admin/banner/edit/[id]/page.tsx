@@ -1,12 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import BannerForm from "@/app/components/admin/BannerForm";
 import { Banner } from "@/types/banner";
 import toast from "react-hot-toast";
 
-export default function EditBanner({ params }: { params: { id: string } }) {
-  const id = params.id;
+export default function EditBanner() {
+  const params = useParams();
+  const id = params.id as string;
   const [banner, setBanner] = useState<Banner | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -37,7 +38,9 @@ export default function EditBanner({ params }: { params: { id: string } }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bannerData),
       });
+
       if (!response.ok) throw new Error("Failed to update banner");
+
       toast.success("Banner updated successfully");
       router.push("/admin/banner");
     } catch (error) {
@@ -50,14 +53,15 @@ export default function EditBanner({ params }: { params: { id: string } }) {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <h1 className="text-2xl font-bold text-gray-900">Edit Banner</h1>
-      {banner && (
-        <BannerForm
-          banner={banner}
-          onSubmit={handleSubmit}
-          isLoading={isLoading}
-        />
-      )}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">Edit Banner</h1>
+      </div>
+      <BannerForm
+        banner={banner || undefined}
+        onSubmit={handleSubmit}
+        onCancel={() => router.push("/admin/banner")}
+        isLoading={isLoading}
+      />
     </div>
   );
 }

@@ -38,7 +38,7 @@ export default function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
-              <Link href="/" className="text-xl font-bold text-indigo-600">
+              <Link href="/" className="text-xl font-bold text-black">
                 House of Kimani
               </Link>
             </div>
@@ -49,12 +49,12 @@ export default function Navbar() {
             {/* Shopping bag icon */}
             <Link
               href="/cart"
-              className="p-2 rounded-full text-gray-500 hover:text-indigo-600 hover:bg-gray-100 mr-3 relative"
+              className="p-2 rounded-full text-gray-500 hover:text-black hover:bg-gray-100 mr-3 relative"
             >
               <span className="sr-only">Shopping bag</span>
               <ShoppingBagIcon className="h-6 w-6" aria-hidden="true" />
               {itemCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-indigo-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 bg-black text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                   {itemCount}
                 </span>
               )}
@@ -78,7 +78,7 @@ export default function Navbar() {
                       height={32}
                     />
                   ) : (
-                    <div className="h-8 w-8 rounded-full bg-indigo-600 flex items-center justify-center text-white text-sm font-medium">
+                    <div className="h-8 w-8 rounded-full bg-black flex items-center justify-center text-white text-sm font-medium">
                       {getInitials()}
                     </div>
                   )}
@@ -137,13 +137,13 @@ export default function Navbar() {
               <div className="flex items-center space-x-4">
                 <Link
                   href="/auth/signin"
-                  className="text-sm font-medium text-gray-700 hover:text-indigo-600"
+                  className="text-sm font-medium text-gray-700 hover:text-black"
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="bg-indigo-600 text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-indigo-700"
+                  className="bg-black text-white px-3 py-1.5 rounded-md text-sm font-medium hover:bg-gray-800"
                 >
                   Sign up
                 </Link>
@@ -197,7 +197,7 @@ export default function Navbar() {
                       />
                     </div>
                   ) : (
-                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-indigo-600 flex items-center justify-center text-white">
+                    <div className="flex-shrink-0 h-10 w-10 rounded-full bg-black flex items-center justify-center text-white">
                       {getInitials()}
                     </div>
                   )}
@@ -212,8 +212,8 @@ export default function Navbar() {
                 </div>
                 <div className="mt-3 space-y-1">
                   <Link
-                    href="/account/profile"
-                    className="flex items-center px-4 py-2 text-base font-medium text-gray-700 hover:text-indigo-600 hover:bg-gray-100"
+                    href="/auth/signin"
+                    className="block py-2 text-base font-medium text-gray-700 hover:text-black"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     <UserCircleIcon className="h-6 w-6 mr-2" />
@@ -243,14 +243,14 @@ export default function Navbar() {
               <div className="space-y-1 px-4">
                 <Link
                   href="/auth/signin"
-                  className="block py-2 text-base font-medium text-gray-700 hover:text-indigo-600"
+                  className="block py-2 text-base font-medium text-black hover:text-gray-800"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Sign in
                 </Link>
                 <Link
                   href="/auth/signup"
-                  className="block py-2 text-base font-medium text-indigo-600 hover:text-indigo-800"
+                  className="block py-2 text-base font-medium text-black hover:text-gray-800"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Sign up

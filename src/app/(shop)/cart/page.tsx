@@ -39,7 +39,7 @@ interface ShippingDetails {
   phone: string;
   address: ShippingAddress;
   saveDetails: boolean;
-  billingAddress?: BillingAddress; 
+  billingAddress?: BillingAddress;
 }
 
 export default function Cart() {
@@ -291,11 +291,11 @@ export default function Cart() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div className="bg-white mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <div className="mb-8">
         <Link
           href="/"
-          className="inline-flex items-center text-sm text-gray-600 hover:text-indigo-600"
+          className="inline-flex items-center text-sm text-black hover:text-gray-600"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-1" />
           Continue Shopping
@@ -328,7 +328,7 @@ export default function Cart() {
                 {/* Product info */}
                 <div className="flex-1 sm:ml-6 flex flex-col justify-between">
                   <div className="flex-1">
-                    <h3 className="text-lg font-medium text-gray-900">
+                    <h3 className="text-lg font-medium text-black">
                       <Link
                         href={`/products/${item.products.id}`}
                         className="hover:text-indigo-600"
@@ -337,7 +337,7 @@ export default function Cart() {
                       </Link>
                     </h3>
                     {/* Product options */}
-                    <div className="mt-1 text-sm text-gray-500 space-y-1">
+                    <div className="mt-1 text-sm text-black space-y-1">
                       {item.color && <p>Color: {item.color}</p>}
                       {item.size && <p>Size: {item.size}</p>}
                     </div>
@@ -367,7 +367,7 @@ export default function Cart() {
                       <div className="flex items-center border border-gray-300 rounded-md">
                         <button
                           type="button"
-                          className="p-2 text-gray-600 hover:text-indigo-600"
+                          className="p-2 text-black hover:text-gray-900"
                           onClick={() =>
                             handleQuantityChange(
                               item.id,
@@ -379,12 +379,10 @@ export default function Cart() {
                         >
                           <MinusIcon className="h-4 w-4" />
                         </button>
-                        <span className="px-3 text-gray-700">
-                          {item.quantity}
-                        </span>
+                        <span className="px-3 text-black">{item.quantity}</span>
                         <button
                           type="button"
-                          className="p-2 text-gray-600 hover:text-indigo-600"
+                          className="p-2 text-black hover:text-gray-900"
                           onClick={() =>
                             handleQuantityChange(
                               item.id,
@@ -417,14 +415,16 @@ export default function Cart() {
 
       {/* Shipping form - show when proceeding to checkout */}
       {showShippingForm && (
-        <div className="bg-white shadow-md rounded-lg overflow-hidden mb-8 p-6 animate-fadeIn">
-          <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
+        <div className="bg-white shadow-md rounded-lg text-black overflow-hidden mb-8 p-6 animate-fadeIn">
+          <h2 className="text-xl font-semibold text-black mb-4">
+            Shipping Information
+          </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-black"
               >
                 Full Name*
               </label>
@@ -442,7 +442,7 @@ export default function Cart() {
             <div>
               <label
                 htmlFor="phone"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-black"
               >
                 Phone Number*
               </label>
@@ -458,13 +458,15 @@ export default function Cart() {
             </div>
           </div>
 
-          <h3 className="font-medium text-lg mb-3">Shipping Address</h3>
+          <h3 className="font-medium text-lg text-black mb-3">
+            Shipping Address
+          </h3>
 
           <div className="space-y-3 mb-6">
             <div>
               <label
                 htmlFor="address.line1"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-black"
               >
                 Address Line 1*
               </label>
@@ -482,7 +484,7 @@ export default function Cart() {
             <div>
               <label
                 htmlFor="address.line2"
-                className="block text-sm font-medium text-gray-700"
+                className="block text-sm font-medium text-black"
               >
                 Address Line 2
               </label>
@@ -500,7 +502,7 @@ export default function Cart() {
               <div>
                 <label
                   htmlFor="address.city"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-black"
                 >
                   City*
                 </label>
@@ -518,7 +520,7 @@ export default function Cart() {
               <div>
                 <label
                   htmlFor="address.state"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-black"
                 >
                   State/Province*
                 </label>
@@ -534,11 +536,11 @@ export default function Cart() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 text-black md:grid-cols-2 gap-4">
               <div>
                 <label
                   htmlFor="address.postal_code"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-black"
                 >
                   Postal Code*
                 </label>
@@ -556,7 +558,7 @@ export default function Cart() {
               <div>
                 <label
                   htmlFor="address.country"
-                  className="block text-sm font-medium text-gray-700"
+                  className="block text-sm font-medium text-black"
                 >
                   Country*
                 </label>
@@ -590,7 +592,7 @@ export default function Cart() {
             />
             <label
               htmlFor="saveDetails"
-              className="ml-2 block text-sm text-gray-700"
+              className="ml-2 block text-sm text-black"
             >
               Save this information for next time
             </label>
@@ -609,7 +611,7 @@ export default function Cart() {
               />
               <label
                 htmlFor="useSameAddress"
-                className="ml-2 block text-sm text-gray-700"
+                className="ml-2 block text-sm text-black"
               >
                 Billing address is the same as shipping address
               </label>
@@ -617,13 +619,15 @@ export default function Cart() {
 
             {!useSameAddress && (
               <div className="border-t border-gray-200 pt-4">
-                <h3 className="font-medium text-lg mb-3">Billing Address</h3>
+                <h3 className="font-medium text-lg text-black mb-3">
+                  Billing Address
+                </h3>
 
                 <div className="space-y-3">
                   <div>
                     <label
                       htmlFor="billing.line1"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-black"
                     >
                       Address Line 1*
                     </label>
@@ -641,7 +645,7 @@ export default function Cart() {
                   <div>
                     <label
                       htmlFor="billing.line2"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-black"
                     >
                       Address Line 2
                     </label>
@@ -659,7 +663,7 @@ export default function Cart() {
                     <div>
                       <label
                         htmlFor="billing.city"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium text-black"
                       >
                         City*
                       </label>
@@ -677,7 +681,7 @@ export default function Cart() {
                     <div>
                       <label
                         htmlFor="billing.state"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium text-black"
                       >
                         State/Province*
                       </label>
@@ -697,7 +701,7 @@ export default function Cart() {
                     <div>
                       <label
                         htmlFor="billing.postal_code"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium text-black"
                       >
                         Postal Code*
                       </label>
@@ -717,7 +721,7 @@ export default function Cart() {
                     <div>
                       <label
                         htmlFor="billing.country"
-                        className="block text-sm font-medium text-gray-700"
+                        className="block text-sm font-medium text-black"
                       >
                         Country*
                       </label>
@@ -743,19 +747,19 @@ export default function Cart() {
 
           {/* Checkout summary */}
           <div className="bg-gray-50 p-6 rounded-lg">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+            <h3 className="text-lg font-medium text-black mb-4">
               Order Summary
             </h3>
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <p className="text-gray-600">Subtotal</p>
-                <p className="font-medium text-gray-900">
+                <p className="text-black">Subtotal</p>
+                <p className="font-medium text-black">
                   ${totalAmount.toFixed(2)}
                 </p>
               </div>
               <div className="border-t border-gray-200 pt-2 flex justify-between">
-                <p className="text-base font-medium text-gray-900">Total</p>
-                <p className="text-base font-medium text-gray-900">
+                <p className="text-base font-medium text-black">Total</p>
+                <p className="text-base font-medium text-black">
                   ${totalAmount.toFixed(2)}
                 </p>
               </div>
@@ -765,7 +769,7 @@ export default function Cart() {
               type="button"
               onClick={handleCheckout}
               disabled={processingCheckout}
-              className="w-full mt-6 bg-indigo-600 border border-transparent rounded-md py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-300"
+              className="w-full mt-6 bg-black border border-transparent rounded-md py-3 px-4 text-base font-medium text-white shadow-sm hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:bg-gray-300"
             >
               {processingCheckout
                 ? "Processing..."
@@ -779,14 +783,14 @@ export default function Cart() {
 
       {/* Cart Summary */}
       {!showShippingForm && (
-        <div className="bg-white shadow-md rounded-lg overflow-hidden p-6">
+        <div className="bg-white shadow-md text-black rounded-lg overflow-hidden p-6">
           <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
           <div className="space-y-2 mb-6">
             <div className="flex justify-between">
-              <span className="text-gray-600">Subtotal</span>
+              <span className="text-black">Subtotal</span>
               <span className="font-medium">${totalAmount.toFixed(2)}</span>
             </div>
-            <div className="border-t border-gray-200 pt-2 flex justify-between">
+            <div className="border-t border-gray-300 pt-2 flex justify-between">
               <span className="text-lg font-medium">Total</span>
               <span className="text-lg font-medium">
                 ${totalAmount.toFixed(2)}
@@ -797,7 +801,7 @@ export default function Cart() {
           <button
             onClick={handleCheckout}
             disabled={processingCheckout}
-            className="w-full bg-indigo-600 text-white py-3 rounded-md font-medium hover:bg-indigo-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-900 disabled:bg-gray-300 disabled:cursor-not-allowed"
           >
             {processingCheckout ? "Processing..." : "Checkout"}
           </button>

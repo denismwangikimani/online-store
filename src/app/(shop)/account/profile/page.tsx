@@ -148,10 +148,10 @@ export default function ProfilePage() {
       <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
         <div className="bg-white shadow overflow-hidden sm:rounded-lg">
           <div className="px-4 py-5 sm:px-6">
-            <h1 className="text-2xl font-bold leading-7 text-gray-900">
+            <h1 className="text-2xl font-bold leading-7 text-black">
               Your Profile
             </h1>
-            <p className="mt-1 max-w-2xl text-sm text-gray-500">
+            <p className="mt-1 max-w-2xl text-sm text-gray-900">
               Update your personal information
             </p>
           </div>
@@ -168,7 +168,7 @@ export default function ProfilePage() {
             </div>
           )}
 
-          <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
+          <div className="border-t border-gray-200 text-black px-4 py-5 sm:px-6">
             <div className="sm:flex sm:items-start">
               <div className="sm:flex-shrink-0">
                 {imageUrl ? (
@@ -181,7 +181,7 @@ export default function ProfilePage() {
                     />
                   </div>
                 ) : (
-                  <div className="h-24 w-24 rounded-full bg-indigo-600 flex items-center justify-center text-white text-2xl font-medium">
+                  <div className="h-24 w-24 rounded-full bg-black flex items-center justify-center text-white text-2xl font-medium">
                     {getInitials()}
                   </div>
                 )}
@@ -191,7 +191,7 @@ export default function ProfilePage() {
                 <div>
                   <label
                     htmlFor="photo"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-black"
                   >
                     Photo
                   </label>
@@ -207,12 +207,12 @@ export default function ProfilePage() {
                     />
                     <label
                       htmlFor="photo"
-                      className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-700 hover:bg-gray-50 focus:outline-none"
+                      className="cursor-pointer bg-white py-2 px-3 border border-gray-300 rounded-md shadow-sm text-sm leading-4 font-medium text-gray-900 hover:bg-gray-50 focus:outline-none"
                     >
                       {uploading ? "Uploading..." : "Change"}
                     </label>
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-gray-900">
                     JPG, PNG or GIF up to 2MB
                   </p>
                 </div>
@@ -224,7 +224,7 @@ export default function ProfilePage() {
                 <div>
                   <label
                     htmlFor="firstName"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-black"
                   >
                     First name
                   </label>
@@ -243,7 +243,7 @@ export default function ProfilePage() {
                 <div>
                   <label
                     htmlFor="lastName"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-black"
                   >
                     Last name
                   </label>
@@ -262,7 +262,7 @@ export default function ProfilePage() {
                 <div className="sm:col-span-2">
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-black"
                   >
                     Email
                   </label>
@@ -273,10 +273,10 @@ export default function ProfilePage() {
                       type="email"
                       disabled
                       value={email}
-                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 bg-gray-50 text-gray-500 sm:text-sm"
+                      className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 bg-gray-50 text-gray-900 sm:text-sm"
                     />
                   </div>
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-xs text-gray-900">
                     Email cannot be changed
                   </p>
                 </div>
@@ -286,7 +286,7 @@ export default function ProfilePage() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-indigo-400"
+                  className="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-black hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:bg-gray-400"
                 >
                   {saving ? "Saving..." : "Save"}
                 </button>

@@ -43,7 +43,9 @@ export default function CategorySection({
         <div className="mb-16 text-center">
           {" "}
           {/* Increased margin bottom */}
-          <h2 className="text-3xl font-bold text-gray-900">{category.name}</h2>
+          <h2 className="text-3xl font-bold text-black mt-20 mb-20">
+            {category.name}
+          </h2>
         </div>
 
         {/* Products Grid - using same class as featured products */}
@@ -62,7 +64,7 @@ export default function CategorySection({
             {/* Added top margin */}
             <Link
               href={`/categories/${category.id}`}
-              className="inline-block border border-indigo-600 text-indigo-600 px-6 py-3 rounded-md font-medium hover:bg-indigo-50 transition-colors"
+              className="inline-block border mt-20 border-black text-black px-6 py-3 rounded-md font-medium hover:bg-gray-50 transition-colors"
             >
               View Full Collection
             </Link>

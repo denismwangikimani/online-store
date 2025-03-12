@@ -68,7 +68,7 @@ export default function CategoryPage() {
       <div className="mb-6">
         <Link
           href="/"
-          className="inline-flex items-center text-sm text-gray-600 hover:text-indigo-600"
+          className="inline-flex items-center text-sm text-black hover:text-gray-600"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-1" />
           Back to Home
@@ -91,14 +91,14 @@ export default function CategoryPage() {
 
       {/* Category Title - centered below image */}
       <div className="mb-16 text-center">
-        <h1 className="text-3xl font-bold text-gray-900">
+        <h1 className="text-3xl font-bold text-black">
           {category.name} Collection
         </h1>
       </div>
 
       {products.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">No products found in this category.</p>
+          <p className="text-black">No products found in this category.</p>
         </div>
       ) : (
         <div className="space-y-16">

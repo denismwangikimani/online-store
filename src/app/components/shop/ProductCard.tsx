@@ -20,7 +20,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           />
         ) : (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-200">
-            <span className="text-gray-400">No image</span>
+            <span className="text-black">No image</span>
           </div>
         )}
         
@@ -32,7 +32,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
 
-      <h3 className="text-base font-medium text-gray-900">{product.name}</h3>
+      <h3 className="text-base font-medium text-black">{product.name}</h3>
       
       <p className="mt-1">
         {product.discount_percentage ? (
@@ -45,7 +45,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             </span>
           </>
         ) : (
-          <span className="text-gray-900 font-medium">${product.price.toFixed(2)}</span>
+          <span className="text-black font-medium">${product.price.toFixed(2)}</span>
         )}
       </p>
     </Link>

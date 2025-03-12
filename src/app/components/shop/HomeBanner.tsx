@@ -39,23 +39,25 @@ export default function HomeBanner() {
   }
 
   return (
-    <div className="relative w-full h-[400px] md:h-[500px]">
-      <Image
-        src={banner.image_url}
-        alt={banner.title || "Banner"}
-        fill
-        priority
-        className="object-cover"
-      />
-      <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center px-4">
-        {banner.title && (
-          <h1 className="text-3xl md:text-5xl text-white font-bold mb-4">
-            {banner.title}
-          </h1>
-        )}
-        {banner.subtitle && (
-          <p className="text-xl md:text-2xl text-white">{banner.subtitle}</p>
-        )}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative w-full h-[85vh] mb-8 overflow-hidden rounded-lg">
+        <Image
+          src={banner.image_url}
+          alt={banner.title || "Banner"}
+          fill
+          priority
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col items-center justify-center text-center px-4">
+          {banner.title && (
+            <h1 className="text-3xl md:text-5xl text-black font-bold mb-4">
+              {banner.title}
+            </h1>
+          )}
+          {banner.subtitle && (
+            <p className="text-xl md:text-2xl text-black">{banner.subtitle}</p>
+          )}
+        </div>
       </div>
     </div>
   );

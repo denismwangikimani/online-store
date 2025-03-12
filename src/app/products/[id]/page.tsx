@@ -319,7 +319,7 @@ export default function ProductDetail() {
         <h1 className="text-2xl font-bold">Product not found</h1>
         <Link
           href="/"
-          className="text-indigo-600 hover:text-indigo-800 mt-4 inline-block"
+          className="text-black hover:text-gray-600 mt-4 inline-block"
         >
           Return to home
         </Link>
@@ -328,11 +328,11 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div className=" mx-auto py-12 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="mb-6">
         <Link
           href="/"
-          className="inline-flex items-center text-sm text-gray-600 hover:text-indigo-600"
+          className="inline-flex items-center text-sm text-black hover:text-gray-600"
         >
           <ArrowLeftIcon className="h-4 w-4 mr-1" />
           Back to Home
@@ -362,7 +362,7 @@ export default function ProductDetail() {
 
         {/* Product Details */}
         <div className="w-full md:w-1/2">
-          <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
+          <h1 className="text-3xl font-bold text-black">{product.name}</h1>
 
           {/* Price */}
           <div className="mt-4">
@@ -384,20 +384,20 @@ export default function ProductDetail() {
                 </span>
               </div>
             ) : (
-              <p className="text-2xl font-bold text-gray-900">
+              <p className="text-2xl font-bold text-gray-800">
                 ${product.price.toFixed(2)}
               </p>
             )}
           </div>
 
           {/* Category */}
-          <p className="text-sm text-gray-500 mt-2">
+          <p className="text-sm text-gray-600 mt-2">
             Category: {product.category}
           </p>
 
           {/* Description */}
           <div className="mt-6">
-            <h2 className="text-lg font-medium text-gray-900">Description</h2>
+            <h2 className="text-lg font-medium text-black">Description</h2>
             <div className="mt-2 prose prose-sm text-gray-600">
               {product.description}
             </div>
@@ -414,7 +414,7 @@ export default function ProductDetail() {
                     type="button"
                     className={`relative w-9 h-9 rounded-full border ${
                       selectedColor === color
-                        ? "ring-2 ring-indigo-500 ring-offset-2"
+                        ? "ring-2 ring-black ring-offset-2"
                         : "border-gray-300"
                     }`}
                     style={{ backgroundColor: color }}
@@ -443,7 +443,7 @@ export default function ProductDetail() {
                     type="button"
                     className={`py-2 px-4 text-sm font-medium rounded-md ${
                       selectedSize === size
-                        ? "bg-indigo-600 text-white"
+                        ? "bg-black text-white"
                         : "bg-gray-100 text-gray-800 hover:bg-gray-200"
                     }`}
                     onClick={() => setSelectedSize(size)}
@@ -488,7 +488,7 @@ export default function ProductDetail() {
 
                 toast.success("Added to cart");
               }}
-              className="w-full bg-indigo-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="w-full bg-gray-800 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
             >
               Add to Cart
             </button>
@@ -498,7 +498,7 @@ export default function ProductDetail() {
               type="button"
               onClick={handleDirectCheckout}
               disabled={processingCheckout}
-              className="w-full bg-green-600 border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full bg-black border border-transparent rounded-md py-3 px-8 flex items-center justify-center text-base font-medium text-white hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {processingCheckout ? "Processing..." : "Buy Now"}
             </button>

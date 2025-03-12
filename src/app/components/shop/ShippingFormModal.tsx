@@ -133,7 +133,7 @@ export default function ShippingFormModal({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 text-black overflow-y-auto">
       <div className="flex min-h-screen items-center justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         <div
           className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
@@ -145,7 +145,7 @@ export default function ShippingFormModal({
           <div className="absolute top-0 right-0 pt-4 pr-4">
             <button
               type="button"
-              className="bg-white rounded-md text-gray-400 hover:text-gray-500"
+              className="bg-white rounded-md text-black hover:text-gray-800"
               onClick={onClose}
             >
               <span className="sr-only">Close</span>
@@ -163,7 +163,7 @@ export default function ShippingFormModal({
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-black"
                   >
                     Full Name*
                   </label>
@@ -181,7 +181,7 @@ export default function ShippingFormModal({
                 <div>
                   <label
                     htmlFor="phone"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-black"
                   >
                     Phone Number*
                   </label>
@@ -203,7 +203,7 @@ export default function ShippingFormModal({
                 <div>
                   <label
                     htmlFor="address.line1"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-black"
                   >
                     Address Line 1*
                   </label>
@@ -221,7 +221,7 @@ export default function ShippingFormModal({
                 <div>
                   <label
                     htmlFor="address.line2"
-                    className="block text-sm font-medium text-gray-700"
+                    className="block text-sm font-medium text-black"
                   >
                     Address Line 2
                   </label>
@@ -239,7 +239,7 @@ export default function ShippingFormModal({
                   <div>
                     <label
                       htmlFor="address.city"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-black"
                     >
                       City*
                     </label>
@@ -257,7 +257,7 @@ export default function ShippingFormModal({
                   <div>
                     <label
                       htmlFor="address.state"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-black"
                     >
                       State/Province*
                     </label>
@@ -277,7 +277,7 @@ export default function ShippingFormModal({
                   <div>
                     <label
                       htmlFor="address.postal_code"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-black"
                     >
                       Postal Code*
                     </label>
@@ -295,7 +295,7 @@ export default function ShippingFormModal({
                   <div>
                     <label
                       htmlFor="address.country"
-                      className="block text-sm font-medium text-gray-700"
+                      className="block text-sm font-medium text-black"
                     >
                       Country*
                     </label>
@@ -328,7 +328,7 @@ export default function ShippingFormModal({
                 />
                 <label
                   htmlFor="saveDetails"
-                  className="ml-2 block text-sm text-gray-700"
+                  className="ml-2 block text-sm text-black"
                 >
                   Save this information for next time
                 </label>
@@ -347,7 +347,7 @@ export default function ShippingFormModal({
                   />
                   <label
                     htmlFor="useSameAddress"
-                    className="ml-2 block text-sm text-gray-700"
+                    className="ml-2 block text-sm text-black"
                   >
                     Billing address is the same as shipping address
                   </label>
@@ -364,7 +364,7 @@ export default function ShippingFormModal({
                       <div>
                         <label
                           htmlFor="billing.line1"
-                          className="block text-sm font-medium text-gray-700"
+                          className="block text-sm font-medium text-black"
                         >
                           Address Line 1*
                         </label>
@@ -383,7 +383,7 @@ export default function ShippingFormModal({
                       <div>
                         <label
                           htmlFor="billing.line2"
-                          className="block text-sm font-medium text-gray-700"
+                          className="block text-sm font-medium text-black"
                         >
                           Address Line 2
                         </label>
@@ -401,7 +401,7 @@ export default function ShippingFormModal({
                         <div>
                           <label
                             htmlFor="billing.city"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium text-black"
                           >
                             City*
                           </label>
@@ -419,7 +419,7 @@ export default function ShippingFormModal({
                         <div>
                           <label
                             htmlFor="billing.state"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium text-black"
                           >
                             State/Province*
                           </label>
@@ -439,7 +439,7 @@ export default function ShippingFormModal({
                         <div>
                           <label
                             htmlFor="billing.postal_code"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium text-black"
                           >
                             Postal Code*
                           </label>
@@ -459,7 +459,7 @@ export default function ShippingFormModal({
                         <div>
                           <label
                             htmlFor="billing.country"
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium text-black"
                           >
                             Country*
                           </label>
@@ -471,7 +471,7 @@ export default function ShippingFormModal({
                             }
                             onChange={handleShippingInputChange}
                             required
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-black focus:ring-black"
                           >
                             <option value="US">United States</option>
                             <option value="CA">Canada</option>
@@ -490,14 +490,14 @@ export default function ShippingFormModal({
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm disabled:bg-gray-400"
+                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-black text-base font-medium text-white hover:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black sm:ml-3 sm:w-auto sm:text-sm disabled:bg-gray-400"
               >
                 {isProcessing ? "Processing..." : "Complete Checkout"}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-black sm:mt-0 sm:w-auto sm:text-sm"
               >
                 Cancel
               </button>

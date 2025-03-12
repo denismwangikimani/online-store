@@ -64,7 +64,7 @@ export default function CategoryPage() {
   const remainingProducts = products.slice(4);
 
   return (
-    <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white mx-auto py-12 px-4 sm:px-6 lg:px-8">
       <div className="mb-6">
         <Link
           href="/"

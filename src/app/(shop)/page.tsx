@@ -63,14 +63,16 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white pb-0">
       <HomeBanner />
 
       {/* Featured Products - with increased vertical spacing */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
         {" "}
         {/* Increased vertical padding */}
-        <h2 className="text-2xl font-bold text-black mb-12">Featured Products</h2>{" "}
+        <h2 className="text-2xl font-bold text-black mb-12">
+          Featured Products
+        </h2>{" "}
         {/* Increased margin bottom */}
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -93,14 +95,16 @@ export default function Home() {
       </div>
 
       {/* Category Sections - Improved spacing with mb-24 in the CategorySection component */}
-      {!isLoading &&
-        categories.map((category) => (
-          <CategorySection
-            key={category.id}
-            category={category}
-            products={categoryProducts[category.name] || []}
-          />
-        ))}
+      <div className="space-y-24 mb-0 pb-0">
+        {!isLoading &&
+          categories.map((category) => (
+            <CategorySection
+              key={category.id}
+              category={category}
+              products={categoryProducts[category.name] || []}
+            />
+          ))}
+      </div>
     </div>
   );
 }

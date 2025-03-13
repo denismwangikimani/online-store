@@ -148,7 +148,7 @@ export default function ProductForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl md:col-span-2"
+      className="bg-white shadow-sm ring-1 text-black ring-gray-900/5 sm:rounded-xl md:col-span-2"
     >
       <div className="px-4 py-6 sm:p-8">
         <div className="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">

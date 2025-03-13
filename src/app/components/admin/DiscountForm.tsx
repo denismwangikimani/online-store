@@ -170,7 +170,7 @@ export default function DiscountForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 text-black">
       <div>
         <label
           htmlFor="percentage"

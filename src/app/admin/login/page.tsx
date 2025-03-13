@@ -1,11 +1,13 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
 
-export default function AdminLogin() {
+// Client component that uses useSearchParams
+function AdminLoginClient() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -157,5 +159,21 @@ export default function AdminLogin() {
         </div>
       </div>
     </div>
+  );
+}
+
+// Main page component that wraps the client component in Suspense
+export default function AdminLogin() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center">
+          <LoadingSpinner />
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      }
+    >
+      <AdminLoginClient />
+    </Suspense>
   );
 }

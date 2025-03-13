@@ -142,18 +142,18 @@ export default function Cart() {
 
   if (items.length === 0) {
     return (
-      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto py-16 px-4 bg-white sm:px-6 lg:px-8">
         <div className="text-center">
-          <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
+          <h1 className="text-3xl font-extrabold tracking-tight text-black sm:text-4xl">
             Your Cart is Empty
           </h1>
-          <p className="mt-4 text-xl text-gray-500">
+          <p className="mt-4 text-xl text-black">
             Add items to your cart to see them here.
           </p>
           <div className="mt-6">
             <Link
               href="/"
-              className="inline-block bg-indigo-600 py-3 px-8 rounded-md font-medium text-white hover:bg-indigo-700"
+              className="inline-block bg-black py-3 px-8 rounded-md font-medium text-white hover:bg-gray-900"
             >
               Continue Shopping
             </Link>
@@ -302,7 +302,7 @@ export default function Cart() {
         </Link>
       </div>
 
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">Your Cart</h1>
+      <h1 className="text-3xl font-bold text-black mb-8">Your Cart</h1>
 
       {/* Cart items */}
       <div

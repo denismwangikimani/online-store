@@ -1,7 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-//import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 
@@ -9,17 +9,41 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  //const router = useRouter();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams?.get("redirectTo") || "/admin/dashboard";
   const supabase = createClientComponentClient();
 
-  // Inside the handleLogin function
+  // Check if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        // Check if user is admin
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", session.user.id)
+          .single();
+
+        if (profile?.is_admin) {
+          // Already logged in as admin, redirect
+          router.push(redirectTo);
+        }
+      }
+    };
+
+    checkSession();
+  }, [redirectTo, router, supabase]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      console.log("Attempting login with email:", email);
-
       const {
         data: { user },
         error: signInError,
@@ -28,17 +52,8 @@ export default function AdminLogin() {
         password,
       });
 
-      if (signInError) {
-        console.error("Sign in error:", signInError);
-        throw signInError;
-      }
-
-      if (!user) {
-        console.error("No user returned after login");
-        throw new Error("No user found");
-      }
-
-      console.log("Login successful, checking admin status for user:", user.id);
+      if (signInError) throw signInError;
+      if (!user) throw new Error("No user found");
 
       // Check if user is admin
       const { data: profile, error: profileError } = await supabase
@@ -47,28 +62,22 @@ export default function AdminLogin() {
         .eq("id", user.id)
         .single();
 
-      if (profileError) {
-        console.error("Profile fetch error:", profileError);
-        throw profileError;
-      }
-
-      console.log("Profile data:", profile);
+      if (profileError) throw profileError;
 
       if (!profile?.is_admin) {
-        console.error("User is not an admin");
         await supabase.auth.signOut();
         throw new Error("Unauthorized access - you must be an admin");
       }
 
       toast.success("Login successful");
-      console.log("Redirecting to admin products page");
 
-      // Force a hard navigation instead of client-side navigation
-      window.location.href = "/admin/dashboard";
+      // Use setTimeout to ensure session is established before redirecting
+      setTimeout(() => {
+        router.push(redirectTo);
+      }, 500);
     } catch (error) {
       console.error("Login error:", error);
       toast.error(error instanceof Error ? error.message : "Failed to login");
-    } finally {
       setIsLoading(false);
     }
   };

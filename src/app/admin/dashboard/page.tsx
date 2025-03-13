@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthProvider";
 import LoadingSpinner from "@/app/components/ui/LoadingSpinner";
@@ -15,71 +15,62 @@ import { DashboardStats } from "@/types/dashboard";
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
   const { user, session } = useAuth();
   const router = useRouter();
   const [timeframe, setTimeframe] = useState<"week" | "month" | "year">(
     "month"
   );
 
+  // Use useCallback to memoize the fetchDashboardData function
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      console.log("Fetching dashboard data...");
+
+      const response = await fetch(`/api/dashboard?timeframe=${timeframe}`, {
+        headers: {
+          "Cache-Control": "no-store",
+          Pragma: "no-cache",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setStats(data);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      toast.error("Failed to load dashboard data");
+    } finally {
+      setIsLoading(false);
+    }
+  }, [timeframe]); // Include timeframe as dependency
+
   useEffect(() => {
     const checkAuth = async () => {
       if (!session || !user) {
-        router.push("/admin/login");
+        router.push("/admin/login?redirectTo=/admin/dashboard");
         return false;
       }
+      setAuthChecked(true);
       return true;
     };
 
-    async function fetchDashboardData() {
-      try {
-        const isAuthenticated = await checkAuth();
-        if (!isAuthenticated) return;
-
-        setIsLoading(true);
-        console.log("Fetching dashboard data...");
-
-        const response = await fetch(`/api/dashboard?timeframe=${timeframe}`);
-        console.log("API response status:", response.status);
-
-        if (!response.ok) {
-          if (response.status === 401) {
-            console.log("Unauthorized access - not authenticated");
-            toast.error("Please login to access this page");
-            router.push("/admin/login");
-            return;
-          }
-          if (response.status === 403) {
-            console.log("Forbidden access - not an admin");
-            toast.error("You don't have permission to view this page");
-            router.push("/admin");
-            return;
-          }
-
-          const errorText = await response.text();
-          let errorData;
-          try {
-            errorData = JSON.parse(errorText);
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          } catch (e) {
-            errorData = { error: errorText || "Unknown error" };
-          }
-          console.error("API error:", errorData);
-          throw new Error(errorData.error || "Failed to fetch dashboard data");
-        }
-
-        const data = await response.json();
-        console.log("Dashboard data loaded");
-        setStats(data);
-      } catch (error) {
-        console.error("Error fetching dashboard data:", error);
-        toast.error("Failed to load dashboard data");
-      } finally {
-        setIsLoading(false);
-      }
+    if (!authChecked) {
+      checkAuth();
+    } else {
+      fetchDashboardData();
     }
+  }, [user, session, authChecked, router, fetchDashboardData]); // Include fetchDashboardData
 
-    fetchDashboardData();
-  }, [user, session, router, timeframe]);
+  useEffect(() => {
+    if (authChecked) {
+      fetchDashboardData();
+    }
+  }, [authChecked, fetchDashboardData]); // Include fetchDashboardData
 
   const handleTimeframeChange = (newTimeframe: "week" | "month" | "year") => {
     setTimeframe(newTimeframe);

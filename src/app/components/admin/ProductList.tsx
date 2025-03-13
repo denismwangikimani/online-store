@@ -13,49 +13,49 @@ export default function ProductList({
   onDelete,
 }: ProductListProps) {
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto min-h-screen">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider"
             >
               Product
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider"
             >
               Category
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider"
             >
               Price
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider"
             >
               Stock
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+              className="px-6 py-3 text-left text-xs font-medium text-black uppercase"
             >
               Colors
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase"
+              className="px-6 py-3 text-left text-xs font-medium text-black uppercase"
             >
               Sizes
             </th>
             <th
               scope="col"
-              className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+              className="px-6 py-3 text-right text-xs font-medium text-black uppercase tracking-wider"
             >
               Actions
             </th>
@@ -82,16 +82,16 @@ export default function ProductList({
                     )}
                   </div>
                   <div className="ml-4">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className="text-sm font-medium text-black">
                       {product.name}
                     </div>
                   </div>
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                 {product.category}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                 {product.discount_percentage ? (
                   <>
                     <span className="line-through">
@@ -105,7 +105,7 @@ export default function ProductList({
                   `$${product.price.toFixed(2)}`
                 )}
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-black">
                 {product.stock}
               </td>
               <td className="px-6 py-4 whitespace-nowrap">
@@ -130,7 +130,7 @@ export default function ProductList({
                     product.sizes.map((size) => (
                       <span
                         key={size}
-                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800"
+                        className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-black"
                       >
                         {size}
                       </span>

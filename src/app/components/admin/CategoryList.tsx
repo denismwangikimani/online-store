@@ -16,17 +16,17 @@ export default function CategoryList({
   const router = useRouter();
 
   return (
-    <div className="overflow-x-auto">
+    <div className="overflow-x-auto min-h-screen">
       <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase">
               Image
             </th>
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+            <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase">
               Name
             </th>
-            <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+            <th className="px-6 py-3 text-right text-xs font-medium text-black uppercase">
               Actions
             </th>
           </tr>
@@ -52,7 +52,7 @@ export default function CategoryList({
                   )}
                 </div>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap">{category.name}</td>
+              <td className="px-6 py-4 text-black whitespace-nowrap">{category.name}</td>
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                 <button
                   onClick={() => router.push(`/admin/categories/${category.id}/products`)}

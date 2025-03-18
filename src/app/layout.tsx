@@ -8,8 +8,13 @@ import { Toaster } from "react-hot-toast";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
+  manifest: "/manifest.json",
   title: "House of Kimani",
   description: "Shop the latest fashion trends",
+  icons: {
+    icon: [{ url: "/HouseOfKimaniLogo.jpg", type: "image/jpeg" }],
+    apple: [{ url: "/HouseOfKimaniLogo.jpg", type: "image/jpeg" }],
+  },
 };
 
 export default function RootLayout({

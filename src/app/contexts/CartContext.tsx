@@ -222,7 +222,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const clearCart = async () => {
+  const clearCart = async (silent = false) => {
     if (!user) return false;
 
     try {
@@ -239,11 +239,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setTotalAmount(0);
       setItemCount(0);
 
-      toast.success("Cart cleared");
+      // Only show toast message if not silent
+      if (!silent) {
+        toast.success("Cart cleared");
+      }
       return true;
     } catch (error) {
       console.error("Error clearing cart:", error);
-      toast.error("Failed to clear cart");
+      if (!silent) {
+        toast.error("Failed to clear cart");
+      }
       return false;
     }
   };

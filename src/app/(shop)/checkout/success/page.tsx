@@ -16,11 +16,15 @@ function CheckoutSuccessClient() {
   const { clearCart } = useCart();
 
   useEffect(() => {
+    let isExecuted = false; // Track if the effect has already run
+
     async function processCheckout() {
-      if (!sessionId) {
+      if (!sessionId || isExecuted) {
         setIsProcessing(false);
         return;
       }
+
+      isExecuted = true; // Mark as executed
 
       try {
         // Clear the cart

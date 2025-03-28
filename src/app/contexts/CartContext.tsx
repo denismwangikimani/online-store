@@ -240,9 +240,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setItemCount(0);
 
       // Only show toast message if not silent
-      if (!silent) {
-        toast.success("Cart cleared");
-      }
+      // if (!silent) {
+      //   toast.success("Cart cleared");
+      // }
       return true;
     } catch (error) {
       console.error("Error clearing cart:", error);

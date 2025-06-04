@@ -9,10 +9,15 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 export async function GET(request: Request) {
   try {
+    console.log("🔄 Confirm endpoint called");
+
     const { searchParams } = new URL(request.url);
     const sessionId = searchParams.get("session_id");
 
+    console.log("📋 Session ID:", sessionId);
+
     if (!sessionId) {
+      console.log("❌ No session ID provided");
       return NextResponse.json(
         { error: "Session ID is required" },
         { status: 400 }
@@ -22,15 +27,34 @@ export async function GET(request: Request) {
     const cookieStore = cookies();
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
+    console.log("🔍 Retrieving Stripe session...");
+
     // Retrieve the session from Stripe
-    const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
+    let stripeSession;
+    try {
+      stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
+      console.log("✅ Stripe session retrieved:", {
+        id: stripeSession.id,
+        payment_status: stripeSession.payment_status,
+        metadata: stripeSession.metadata,
+      });
+    } catch (stripeError) {
+      console.error("❌ Stripe session retrieval failed:", stripeError);
+      return NextResponse.json(
+        { error: "Invalid session ID" },
+        { status: 404 }
+      );
+    }
 
     if (!stripeSession.metadata?.orderNumber) {
+      console.log("❌ No order number in session metadata");
       return NextResponse.json(
         { error: "Order information not found" },
         { status: 404 }
       );
     }
+
+    console.log("🔍 Looking up order in database...");
 
     // Get the order from database using order number
     const { data: order, error: orderError } = await supabase
@@ -39,13 +63,22 @@ export async function GET(request: Request) {
       .eq("order_number", stripeSession.metadata.orderNumber)
       .single();
 
-    if (orderError || !order) {
-      console.error("Error fetching order:", orderError);
+    if (orderError) {
+      console.error("❌ Database order lookup failed:", orderError);
+      return NextResponse.json({ error: "Database error" }, { status: 500 });
+    }
+
+    if (!order) {
+      console.log("❌ Order not found in database");
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
+    console.log("✅ Order found:", order);
+
     // Only send notifications if payment was successful
     if (stripeSession.payment_status === "paid") {
+      console.log("💰 Payment successful, sending notifications...");
+
       try {
         const notificationResponse = await fetch(
           `${
@@ -61,18 +94,25 @@ export async function GET(request: Request) {
         );
 
         if (!notificationResponse.ok) {
-          console.error(
-            "Notification API returned error:",
-            await notificationResponse.text()
-          );
+          const errorText = await notificationResponse.text();
+          console.error("❌ Notification API error:", errorText);
         } else {
-          console.log("Notifications sent successfully from confirm endpoint");
+          console.log(
+            "✅ Notifications sent successfully from confirm endpoint"
+          );
         }
       } catch (error) {
-        console.error("Error sending notifications:", error);
+        console.error("❌ Error sending notifications:", error);
         // Don't fail the response if notifications fail
       }
+    } else {
+      console.log(
+        "⏳ Payment not yet completed, status:",
+        stripeSession.payment_status
+      );
     }
+
+    console.log("✅ Confirm endpoint successful");
 
     return NextResponse.json({
       success: true,
@@ -82,7 +122,7 @@ export async function GET(request: Request) {
       orderStatus: order.status,
     });
   } catch (error) {
-    console.error("Session confirmation error:", error);
+    console.error("💥 Session confirmation error:", error);
     return NextResponse.json(
       { error: "An error occurred during confirmation" },
       { status: 500 }

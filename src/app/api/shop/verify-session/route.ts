@@ -14,31 +14,20 @@ export async function GET(request: Request) {
 
     if (!sessionId) {
       return NextResponse.json(
-        { error: "Missing session ID" },
+        { error: "Session ID is required" },
         { status: 400 }
       );
     }
 
-    // Create the Supabase client properly
     const cookieStore = cookies();
     const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
 
-    // Verify authentication
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    if (!session) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    // Retrieve the session from Stripe
+    const stripeSession = await stripe.checkout.sessions.retrieve(sessionId);
 
-    // Get the Stripe session
-    const stripeSession = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["customer", "shipping_details"],
-    });
-
-    if (!stripeSession || stripeSession.metadata?.userId !== session.user.id) {
+    if (!stripeSession.metadata?.orderNumber) {
       return NextResponse.json(
-        { error: "Invalid or unauthorized session" },
+        { error: "Invalid session metadata" },
         { status: 403 }
       );
     }
@@ -59,17 +48,47 @@ export async function GET(request: Request) {
         country: shippingDetails.address?.country,
       };
 
-      const { error } = await supabase
+      const { data: updatedOrder, error } = await supabase
         .from("orders")
         .update({
           status: "paid",
           shipping_address: shippingAddress,
           updated_at: new Date().toISOString(),
         })
-        .eq("payment_intent_id", stripeSession.payment_intent);
+        .eq("payment_intent_id", stripeSession.payment_intent)
+        .select("id")
+        .single();
 
       if (error) {
         console.error("Error updating order status and shipping:", error);
+      } else if (updatedOrder) {
+        // Send notifications after successful payment and order update
+        try {
+          const notificationResponse = await fetch(
+            `${
+              process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+            }/api/notifications/order`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ orderId: updatedOrder.id }),
+            }
+          );
+
+          if (!notificationResponse.ok) {
+            console.error(
+              "Notification API returned error:",
+              await notificationResponse.text()
+            );
+          } else {
+            console.log("Notifications sent successfully");
+          }
+        } catch (notificationError) {
+          console.error("Error sending notifications:", notificationError);
+          // Don't fail the response if notifications fail
+        }
       }
     }
 

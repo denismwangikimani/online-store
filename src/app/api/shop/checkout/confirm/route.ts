@@ -78,25 +78,35 @@ export async function GET(request: Request) {
     // Only send notifications if payment was successful
     if (stripeSession.payment_status === "paid") {
       console.log("💰 Payment successful, sending notifications...");
+      console.log("🎯 Order ID for notifications:", order.id);
 
       try {
-        const notificationResponse = await fetch(
-          `${
-            process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
-          }/api/notifications/order`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ orderId: order.id }),
-          }
+        const notificationUrl = `${
+          process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+        }/api/notifications/order`;
+
+        console.log("📧 Calling notification endpoint:", notificationUrl);
+        console.log("📦 Notification payload:", { orderId: order.id });
+
+        const notificationResponse = await fetch(notificationUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ orderId: order.id }),
+        });
+
+        console.log(
+          "📡 Notification response status:",
+          notificationResponse.status
         );
 
         if (!notificationResponse.ok) {
           const errorText = await notificationResponse.text();
           console.error("❌ Notification API error:", errorText);
         } else {
+          const notificationResult = await notificationResponse.json();
+          console.log("✅ Notification result:", notificationResult);
           console.log(
             "✅ Notifications sent successfully from confirm endpoint"
           );

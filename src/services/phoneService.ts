@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import twilio from "twilio";
 
 // Initialize Twilio client with your credentials
@@ -36,26 +37,51 @@ Check your admin dashboard for details.
 
 - House Of Kimani`;
 
+    // For trial accounts, gracefully handle unverified numbers
     const result = await client.messages.create({
       body: message,
-      from: process.env.TWILIO_PHONE_NUMBER!, // +18154863344
-      to: process.env.ADMIN_PHONE_NUMBER!, // +2540714989189
+      from: process.env.TWILIO_PHONE_NUMBER!,
+      to: "+254714989189", // Your verified number
     });
 
     console.log("SMS sent successfully:", result.sid);
     return { success: true, messageSid: result.sid };
-  } catch (error) {
+  } catch (error: any) {
+    // Handle trial account limitations gracefully
+    if (error.code === 21608) {
+      console.log("⚠️ SMS skipped: Trial account - number not verified");
+      return {
+        success: false,
+        error:
+          "Trial account limitation - SMS requires phone number verification",
+        skipped: true,
+      };
+    }
+
     console.error("Error sending SMS:", error);
     return { success: false, error };
   }
 };
 
-// Optional: Send customer order confirmation SMS
 export const sendCustomerOrderSMS = async (
   order: Order,
   customerPhone: string
 ) => {
   try {
+    // For trial accounts, only attempt verified numbers
+    const verifiedNumbers = ["+254714989189"];
+
+    if (!verifiedNumbers.includes(customerPhone)) {
+      console.log(
+        `⚠️ SMS skipped: ${customerPhone} not verified for trial account`
+      );
+      return {
+        success: false,
+        error: "Phone number not verified for trial account",
+        skipped: true,
+      };
+    }
+
     const message = `Hi ${order.shipping_address?.name || "Valued Customer"}!
 
 Your order ${order.order_number} has been confirmed! 🎉
@@ -74,7 +100,19 @@ Thank you for shopping with House Of Kimani! ✨`;
 
     console.log("Customer SMS sent successfully:", result.sid);
     return { success: true, messageSid: result.sid };
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 21608) {
+      console.log(
+        "⚠️ Customer SMS skipped: Trial account - number not verified"
+      );
+      return {
+        success: false,
+        error:
+          "Trial account limitation - SMS requires phone number verification",
+        skipped: true,
+      };
+    }
+
     console.error("Error sending customer SMS:", error);
     return { success: false, error };
   }

@@ -17,8 +17,8 @@ function CheckoutSuccessClient() {
   const { clearCart } = useCart();
 
   useEffect(() => {
-    let isMounted = true; // Track component mount status
-    let hasExecuted = false; // Track if processing has been attempted
+    let isMounted = true;
+    let hasExecuted = false;
 
     async function processCheckout() {
       // Prevent multiple executions
@@ -35,11 +35,7 @@ function CheckoutSuccessClient() {
       console.log("🚀 Processing checkout for session:", sessionId);
 
       try {
-        // Clear the cart first
-        await clearCart();
-        console.log("🛒 Cart cleared");
-
-        // Fetch the order details from the session ID
+        // Fetch the order details from the session ID FIRST
         console.log("📞 Calling confirm endpoint...");
         const response = await fetch(
           `/api/shop/checkout/confirm?session_id=${sessionId}`,
@@ -65,6 +61,10 @@ function CheckoutSuccessClient() {
         if (isMounted) {
           setOrderNumber(data.orderNumber || "unknown");
         }
+
+        // Clear the cart AFTER successful confirmation
+        await clearCart();
+        console.log("🛒 Cart cleared");
       } catch (error) {
         console.error("💥 Error confirming order:", error);
         if (isMounted) {
@@ -91,7 +91,7 @@ function CheckoutSuccessClient() {
     return () => {
       isMounted = false;
     };
-  }, [sessionId, clearCart]); // Dependencies remain the same
+  }, [sessionId]); // Remove clearCart from dependencies
 
   if (isProcessing) {
     return (

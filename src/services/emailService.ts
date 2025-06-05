@@ -1,368 +1,367 @@
-import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
-
-// Initialize MailerSend
-const mailerSend = new MailerSend({
-  apiKey: process.env.MAILERSEND_API_KEY!,
-});
-
-interface Order {
+// supabase/functions/send-order-notifications/types.ts (or inline in index.ts)
+// These interfaces should match the structure of data fetched by your Edge Function
+export interface Order {
   id: string;
+  user_id?: string;
   order_number: string;
   total_amount: number;
   status: string;
-  created_at: string;
+  created_at: string; // ISO string
+  updated_at: string; // ISO string
   shipping_address?: {
     name?: string;
     phone?: string;
-    line1?: string;
+    line1: string;
     line2?: string;
-    city?: string;
-    state?: string;
-    postal_code?: string;
-    country?: string;
+    city: string;
+    state: string;
+    postal_code: string;
+    country: string;
+  } | null;
+  // Add profiles property that was missing
+  profiles?: {
+    id: string;
+    email: string;
   };
   customer_profiles?: {
-    email?: string;
     first_name?: string;
     last_name?: string;
-  };
-  profiles?: {
     email?: string;
-  };
+  } | null;
 }
 
-interface OrderItem {
+export interface OrderItem {
   id: string;
+  order_id?: string;
+  product_id?: number;
   quantity: number;
   price: number;
-  color?: string;
-  size?: string;
-  product_name?: string;
+  color?: string | null;
+  size?: string | null;
+  created_at?: string;
+  // Update products to include all required fields
   products?: {
-    name?: string;
+    id: number;
+    name: string;
+    price: number;
+    image_url?: string;
+    category?: string;
+  } | null;
+}
+
+// Helper for date formatting
+function formatDate(
+  dateString: string,
+  options: Intl.DateTimeFormatOptions,
+): string {
+  try {
+    return new Intl.DateTimeFormat("en-US", options).format(
+      new Date(dateString),
+    );
+  } catch {
+    return dateString; // fallback
+  }
+}
+
+// Add this new function to your emailService.ts file at the top level
+export async function sendEmail(
+  to: string,
+  subject: string,
+  html: string,
+  text?: string,
+): Promise<{ success: boolean; error?: unknown; messageId?: string }> {
+  // This function wraps sendEmailViaMailerSend for consistency with your test-notifications route
+  console.log(`Sending email to ${to}: ${subject}`);
+
+  const result = await sendEmailViaMailerSend(
+    to,
+    subject,
+    html,
+    text || "Plain text version not provided",
+  );
+
+  return {
+    success: result,
+    messageId: result ? "email-sent" : undefined,
+    error: result ? undefined : "Failed to send email",
   };
 }
 
-// Email templates
-export const generateCustomerOrderConfirmationEmail = (order: Order, items: OrderItem[]) => {
-  const itemsHtml = items.map(item => `
-    <tr style="border-bottom: 1px solid #e5e7eb;">
-      <td style="padding: 12px; text-align: left;">
-        <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">
-          ${item.product_name || item.products?.name}
-        </div>
-        <div style="font-size: 14px; color: #6b7280;">
+// --- Customer Order Confirmation Email HTML ---
+export function generateCustomerOrderConfirmationHtml(
+  order: Order,
+  items: OrderItem[],
+): string {
+  const customerName = order.customer_profiles?.first_name ||
+    order.shipping_address?.name || "Valued Customer";
+  const orderDate = formatDate(order.created_at, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+  const createdAt = formatDate(order.created_at, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  const updatedAt = formatDate(order.updated_at, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  const itemsHtml = items.map((item) => `
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">
+        ${item.products?.name || "N/A"}
+        <br>
+        <small>
           Quantity: ${item.quantity}
-          ${item.color ? `<br>Color: ${item.color}` : ''}
-          ${item.size ? `<br>Size: ${item.size}` : ''}
-        </div>
+          ${item.color ? `<br>Color: ${item.color}` : ""}
+          ${item.size ? `<br>Size: ${item.size}` : ""}
+        </small>
       </td>
-      <td style="padding: 12px; text-align: right; font-weight: 600; color: #1f2937;">
-        $${(item.price * item.quantity).toFixed(2)}
-      </td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${
+    (item.price * item.quantity).toFixed(2)
+  }</td>
     </tr>
-  `).join('');
+  `).join("");
+
+  const shippingInfoHtml = order.shipping_address
+    ? `
+    <h2 style="color: #333;">Shipping Information</h2>
+    <p style="color: #555; margin-bottom: 5px;">${order.shipping_address.name}</p>
+    <p style="color: #555; margin-bottom: 5px;">${order.shipping_address.line1}</p>
+    ${
+      order.shipping_address.line2
+        ? `<p style="color: #555; margin-bottom: 5px;">${order.shipping_address.line2}</p>`
+        : ""
+    }
+    <p style="color: #555; margin-bottom: 5px;">${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postal_code}</p>
+    <p style="color: #555; margin-bottom: 20px;">${order.shipping_address.country}</p>
+  `
+    : "<p>Shipping information not available or not applicable.</p>";
 
   return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Order Confirmation</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb;">
-      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
-        
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 32px 24px; text-align: center;">
-          <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">
-            Order Confirmed! 🎉
-          </h1>
-          <p style="margin: 8px 0 0 0; color: #e0e7ff; font-size: 16px;">
-            Thank you for shopping with House Of Kimani
-          </p>
-        </div>
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 20px auto; border: 1px solid #ddd; padding: 20px;">
+      <h1 style="color: #333; text-align: center;">Thank You for Your Order!</h1>
+      <p>Hi ${customerName},</p>
+      <p>Your order #${order.order_number} has been confirmed. Here are the details:</p>
+      
+      <h2 style="color: #333;">Order Summary</h2>
+      <p style="color: #555; margin-bottom: 5px;"><strong>Order #:</strong> ${order.order_number}</p>
+      <p style="color: #555; margin-bottom: 5px;"><strong>Date:</strong> ${orderDate}</p>
+      <p style="color: #555; margin-bottom: 5px;"><strong>Status:</strong> ${order.status}</p>
+      <p style="color: #555; margin-bottom: 20px;"><strong>Total:</strong> $${
+    order.total_amount.toFixed(2)
+  }</p>
 
-        <!-- Content -->
-        <div style="padding: 32px 24px;">
-          
-          <!-- Order Summary -->
-          <div style="background-color: #f8fafc; border-radius: 8px; padding: 24px; margin-bottom: 24px; border-left: 4px solid #667eea;">
-            <h2 style="margin: 0 0 16px 0; color: #1f2937; font-size: 20px; font-weight: 600;">
-              Order Details
-            </h2>
-            <div style="display: grid; gap: 8px;">
-              <div style="display: flex; justify-content: space-between;">
-                <span style="color: #6b7280; font-weight: 500;">Order Number:</span>
-                <span style="color: #1f2937; font-weight: 600;">${order.order_number}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span style="color: #6b7280; font-weight: 500;">Order Date:</span>
-                <span style="color: #1f2937; font-weight: 600;">${new Date(order.created_at).toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
-                })}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span style="color: #6b7280; font-weight: 500;">Status:</span>
-                <span style="background-color: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; text-transform: uppercase;">
-                  ${order.status}
-                </span>
-              </div>
-            </div>
-          </div>
+      ${shippingInfoHtml}
 
-          ${order.shipping_address ? `
-          <!-- Shipping Address -->
-          <div style="background-color: #f8fafc; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
-            <h3 style="margin: 0 0 16px 0; color: #1f2937; font-size: 18px; font-weight: 600;">
-              📦 Shipping Address
-            </h3>
-            <div style="color: #4b5563; line-height: 1.6;">
-              <div style="font-weight: 600; color: #1f2937;">${order.shipping_address.name}</div>
-              ${order.shipping_address.phone ? `<div>${order.shipping_address.phone}</div>` : ''}
-              <div>${order.shipping_address.line1}</div>
-              ${order.shipping_address.line2 ? `<div>${order.shipping_address.line2}</div>` : ''}
-              <div>${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postal_code}</div>
-              <div>${order.shipping_address.country}</div>
-            </div>
-          </div>
-          ` : ''}
+      <h2 style="color: #333;">Order Items</h2>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr>
+            <th style="text-align: left; padding: 10px; border-bottom: 2px solid #ddd;">Product Details</th>
+            <th style="text-align: right; padding: 10px; border-bottom: 2px solid #ddd;">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+      <p style="text-align: right; font-size: 1.2em; font-weight: bold; margin-bottom: 20px;">Grand Total: $${
+    order.total_amount.toFixed(2)
+  }</p>
 
-          <!-- Order Items -->
-          <div style="margin-bottom: 24px;">
-            <h3 style="margin: 0 0 16px 0; color: #1f2937; font-size: 18px; font-weight: 600;">
-              🛍️ Order Items
-            </h3>
-            <table style="width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
-              <thead>
-                <tr style="background-color: #f9fafb;">
-                  <th style="padding: 16px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">
-                    Item Details
-                  </th>
-                  <th style="padding: 16px; text-align: right; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">
-                    Price
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                ${itemsHtml}
-              </tbody>
-            </table>
-          </div>
+      <h2 style="color: #333;">Order History</h2>
+      <p style="color: #555; margin-bottom: 5px;"><strong>Created:</strong> ${createdAt}</p>
+      <p style="color: #555; margin-bottom: 5px;"><strong>Last Updated:</strong> ${updatedAt}</p>
 
-          <!-- Total -->
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 8px; padding: 24px; text-align: center; color: #ffffff;">
-            <div style="font-size: 14px; font-weight: 500; margin-bottom: 4px; opacity: 0.9;">
-              Total Amount
-            </div>
-            <div style="font-size: 32px; font-weight: 700;">
-              $${order.total_amount.toFixed(2)}
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Footer -->
-        <div style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
-          <p style="margin: 0 0 8px 0; color: #1f2937; font-weight: 600;">
-            Thank you for choosing House Of Kimani! ✨
-          </p>
-          <p style="margin: 0; color: #6b7280; font-size: 14px;">
-            If you have any questions about your order, please don't hesitate to contact our support team.
-          </p>
-        </div>
-
-      </div>
-    </body>
-    </html>
+      <p>We'll notify you once your order has shipped. If you have any questions, feel free to contact us.</p>
+      <p>Thanks,<br>The House Of Kimani Team</p>
+    </div>
   `;
-};
+}
 
-export const generateAdminOrderNotificationEmail = (order: Order, items: OrderItem[]) => {
-  const itemsHtml = items.map(item => `
-    <tr style="border-bottom: 1px solid #e5e7eb;">
-      <td style="padding: 12px;">
-        <div style="font-weight: 600; color: #1f2937; margin-bottom: 4px;">
-          ${item.product_name || item.products?.name}
-        </div>
-        <div style="font-size: 14px; color: #6b7280;">
-          ${item.color ? `Color: ${item.color} | ` : ''}${item.size ? `Size: ${item.size}` : ''}
-        </div>
+// --- Admin Order Notification Email HTML ---
+export function generateAdminOrderNotificationHtml(
+  order: Order,
+  items: OrderItem[],
+): string {
+  const customerFullName =
+    `${order.customer_profiles?.first_name || ""} ${
+      order.customer_profiles?.last_name || ""
+    }`.trim() || order.shipping_address?.name || "N/A";
+  const customerEmail = order.customer_profiles?.email || "N/A";
+  const orderDate = formatDate(order.created_at, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+  const createdAt = formatDate(order.created_at, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+  const updatedAt = formatDate(order.updated_at, {
+    year: "numeric",
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
+
+  const itemsHtml = items.map((item) => `
+    <tr>
+      <td style="padding: 10px; border-bottom: 1px solid #eee;">
+        ${item.products?.name || "N/A"}
+        <br>
+        <small>
+          Quantity: ${item.quantity}
+          ${item.color ? `<br>Color: ${item.color}` : ""}
+          ${item.size ? `<br>Size: ${item.size}` : ""}
+        </small>
       </td>
-      <td style="padding: 12px; text-align: center; font-weight: 600;">
-        ${item.quantity}
-      </td>
-      <td style="padding: 12px; text-align: right; font-weight: 600; color: #1f2937;">
-        $${(item.price * item.quantity).toFixed(2)}
-      </td>
+      <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">$${
+    (item.price * item.quantity).toFixed(2)
+  }</td>
     </tr>
-  `).join('');
+  `).join("");
 
-  const customerName = order.shipping_address?.name || order.customer_profiles?.first_name 
-    ? `${order.customer_profiles?.first_name} ${order.customer_profiles?.last_name || ''}` 
-    : order.profiles?.email?.split('@')[0] || 'Unknown Customer';
+  const shippingInfoHtml = order.shipping_address
+    ? `
+    <h3 style="color: #333;">Shipping Information</h3>
+    <p style="color: #555; margin-bottom: 5px;">${order.shipping_address.name}</p>
+    <p style="color: #555; margin-bottom: 5px;">${
+      order.shipping_address.phone || "No phone provided"
+    }</p>
+    <p style="color: #555; margin-bottom: 5px;">${order.shipping_address.line1}</p>
+    ${
+      order.shipping_address.line2
+        ? `<p style="color: #555; margin-bottom: 5px;">${order.shipping_address.line2}</p>`
+        : ""
+    }
+    <p style="color: #555; margin-bottom: 5px;">${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postal_code}</p>
+    <p style="color: #555; margin-bottom: 20px;">${order.shipping_address.country}</p>
+  `
+    : "<p>Shipping information not available or not applicable.</p>";
 
   return `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>New Order Alert</title>
-    </head>
-    <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f9fafb;">
-      <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
-        
-        <!-- Header -->
-        <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 32px 24px; text-align: center;">
-          <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">
-            🚨 New Order Alert!
-          </h1>
-          <p style="margin: 8px 0 0 0; color: #fef3c7; font-size: 16px;">
-            You have a new order to process
-          </p>
-        </div>
+    <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 20px auto; border: 1px solid #ddd; padding: 20px;">
+      <h1 style="color: #d9534f; text-align: center;">New Order Notification!</h1>
+      <p>A new order has been placed on House Of Kimani.</p>
+      
+      <h2 style="color: #333;">Order Summary</h2>
+      <p style="color: #555; margin-bottom: 5px;"><strong>Order #:</strong> ${order.order_number}</p>
+      <p style="color: #555; margin-bottom: 5px;"><strong>Date:</strong> ${orderDate}</p>
+      <p style="color: #555; margin-bottom: 5px;"><strong>Status:</strong> ${order.status}</p>
+      <p style="color: #555; margin-bottom: 20px;"><strong>Total:</strong> $${
+    order.total_amount.toFixed(2)
+  }</p>
 
-        <!-- Content -->
-        <div style="padding: 32px 24px;">
-          
-          <!-- Order Info -->
-          <div style="background-color: #eff6ff; border-radius: 8px; padding: 24px; margin-bottom: 24px; border-left: 4px solid #3b82f6;">
-            <h2 style="margin: 0 0 16px 0; color: #1f2937; font-size: 20px; font-weight: 600;">
-              Order Information
-            </h2>
-            <div style="display: grid; gap: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: #6b7280; font-weight: 500;">Order Number:</span>
-                <span style="background-color: #dbeafe; color: #1e40af; padding: 4px 12px; border-radius: 6px; font-weight: 700; font-family: monospace;">
-                  ${order.order_number}
-                </span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span style="color: #6b7280; font-weight: 500;">Customer:</span>
-                <span style="color: #1f2937; font-weight: 600;">${customerName}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span style="color: #6b7280; font-weight: 500;">Email:</span>
-                <span style="color: #1f2937; font-weight: 600;">${order.customer_profiles?.email || order.profiles?.email || 'N/A'}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between;">
-                <span style="color: #6b7280; font-weight: 500;">Order Date:</span>
-                <span style="color: #1f2937; font-weight: 600;">${new Date(order.created_at).toLocaleDateString('en-US', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: #6b7280; font-weight: 500;">Total Amount:</span>
-                <span style="background-color: #dcfce7; color: #166534; padding: 6px 12px; border-radius: 6px; font-weight: 700; font-size: 18px;">
-                  $${order.total_amount.toFixed(2)}
-                </span>
-              </div>
-            </div>
-          </div>
+      <h2 style="color: #333;">Customer Details</h2>
+      <p style="color: #555; margin-bottom: 5px;"><strong>Name:</strong> ${customerFullName}</p>
+      <p style="color: #555; margin-bottom: 20px;"><strong>Email:</strong> ${customerEmail}</p>
 
-          ${order.shipping_address ? `
-          <!-- Shipping Details -->
-          <div style="background-color: #f8fafc; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
-            <h3 style="margin: 0 0 16px 0; color: #1f2937; font-size: 18px; font-weight: 600;">
-              📦 Shipping Details
-            </h3>
-            <div style="color: #4b5563; line-height: 1.6;">
-              <div style="font-weight: 600; color: #1f2937;">${order.shipping_address.name}</div>
-              ${order.shipping_address.phone ? `<div style="color: #059669;">📞 ${order.shipping_address.phone}</div>` : ''}
-              <div>${order.shipping_address.line1}</div>
-              ${order.shipping_address.line2 ? `<div>${order.shipping_address.line2}</div>` : ''}
-              <div>${order.shipping_address.city}, ${order.shipping_address.state} ${order.shipping_address.postal_code}</div>
-              <div>${order.shipping_address.country}</div>
-            </div>
-          </div>
-          ` : ''}
+      ${shippingInfoHtml}
 
-          <!-- Order Items -->
-          <div style="margin-bottom: 24px;">
-            <h3 style="margin: 0 0 16px 0; color: #1f2937; font-size: 18px; font-weight: 600;">
-              🛍️ Order Items
-            </h3>
-            <table style="width: 100%; border-collapse: collapse; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
-              <thead>
-                <tr style="background-color: #f9fafb;">
-                  <th style="padding: 16px; text-align: left; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">
-                    Product
-                  </th>
-                  <th style="padding: 16px; text-align: center; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">
-                    Qty
-                  </th>
-                  <th style="padding: 16px; text-align: right; font-weight: 600; color: #374151; border-bottom: 1px solid #e5e7eb;">
-                    Total
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                ${itemsHtml}
-              </tbody>
-            </table>
-          </div>
+      <h2 style="color: #333;">Order Items</h2>
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr>
+            <th style="text-align: left; padding: 10px; border-bottom: 2px solid #ddd;">Product Details</th>
+            <th style="text-align: right; padding: 10px; border-bottom: 2px solid #ddd;">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+      <p style="text-align: right; font-size: 1.2em; font-weight: bold; margin-bottom: 20px;">Grand Total: $${
+    order.total_amount.toFixed(2)
+  }</p>
+      
+      <h2 style="color: #333;">Order History</h2>
+      <p style="color: #555; margin-bottom: 5px;"><strong>Created:</strong> ${createdAt}</p>
+      <p style="color: #555; margin-bottom: 5px;"><strong>Last Updated:</strong> ${updatedAt}</p>
 
-          <!-- Action Required -->
-          <div style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); border-radius: 8px; padding: 24px; text-align: center; color: #ffffff; margin-bottom: 24px;">
-            <div style="font-size: 20px; font-weight: 700; margin-bottom: 8px;">
-              ⚡ Action Required
-            </div>
-            <div style="font-size: 16px; opacity: 0.9;">
-              Please process this order in your admin dashboard
-            </div>
-          </div>
-
-          <!-- Order Total -->
-          <div style="background-color: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 8px; padding: 24px; text-align: center;">
-            <div style="font-size: 14px; color: #0369a1; font-weight: 500; margin-bottom: 4px;">
-              Order Total
-            </div>
-            <div style="font-size: 32px; font-weight: 700; color: #0c4a6e;">
-              $${order.total_amount.toFixed(2)}
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Footer -->
-        <div style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
-          <p style="margin: 0; color: #6b7280; font-size: 14px;">
-            This is an automated notification from House Of Kimani order management system.
-          </p>
-        </div>
-
-      </div>
-    </body>
-    </html>
+      <p style="text-align: center; margin-top: 20px;">
+        <a href="YOUR_ADMIN_ORDER_DETAIL_URL/${order.id}" style="background-color: #5bc0de; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">View Order in Admin</a>
+      </p>
+    </div>
   `;
-};
+}
 
-// Send email function using MailerSend
-export const sendEmail = async (to: string, subject: string, html: string) => {
-  try {
-    const sentFrom = new Sender(process.env.FROM_EMAIL!, process.env.FROM_NAME!);
-    const recipients = [new Recipient(to, to.split('@')[0])];
+// --- Deno-compatible MailerSend Function ---
+// This function would also be in your Edge Function's scope
+// Ensure MAILERSEND_API_KEY, FROM_EMAIL, FROM_NAME are set as environment variables in Supabase
+export async function sendEmailViaMailerSend(
+  to: string,
+  subject: string,
+  html: string,
+  text: string,
+): Promise<boolean> {
+  const apiKey = process.env.MAILERSEND_API_KEY;
+  const fromEmail = process.env.FROM_EMAIL;
+  const fromName = process.env.FROM_NAME;
 
-    const emailParams = new EmailParams()
-      .setFrom(sentFrom)
-      .setTo(recipients)
-      .setSubject(subject)
-      .setHtml(html);
-
-    const response = await mailerSend.email.send(emailParams);
-    
-    console.log('Email sent successfully via MailerSend:', response);
-    return { success: true, response };
-  } catch (error) {
-    console.error('Error sending email via MailerSend:', error);
-    return { success: false, error };
+  if (!apiKey || !fromEmail || !fromName) {
+    console.error("MailerSend environment variables not set.");
+    return false;
   }
-};
+
+  const payload = {
+    from: { email: fromEmail, name: fromName },
+    to: [{ email: to }],
+    subject: subject,
+    html: html,
+    text: text, // Plain text version
+  };
+
+  try {
+    const response = await fetch("https://api.mailersend.com/v1/email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+        "X-Requested-With": "XMLHttpRequest", // Often required by MailerSend
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (response.ok) {
+      console.log(
+        `Email sent successfully to ${to}. Status: ${response.status}`,
+      );
+      // const responseData = await response.json(); // if you need message ID, etc.
+      // console.log("MailerSend Response:", responseData);
+      return true;
+    } else {
+      const errorBody = await response.text();
+      console.error(
+        `Failed to send email to ${to}. Status: ${response.status}`,
+        errorBody,
+      );
+      return false;
+    }
+  } catch (error) {
+    console.error("Error sending email via MailerSend:", error);
+    return false;
+  }
+}
+
+export const generateCustomerOrderConfirmationEmail =
+  generateCustomerOrderConfirmationHtml;
+export const generateAdminOrderNotificationEmail =
+  generateAdminOrderNotificationHtml;

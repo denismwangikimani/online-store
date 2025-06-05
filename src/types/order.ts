@@ -24,6 +24,7 @@ export interface Order {
   total_amount: number;
   payment_intent_id?: string;
   shipping_address?: {
+    phone?: string;
     name?: string;
     line1: string;
     line2?: string;
